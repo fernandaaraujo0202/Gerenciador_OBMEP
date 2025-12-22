@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 
@@ -48,4 +49,56 @@
     <a href = "/logout">Sair</a>
 </body>
 
+=======
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title> Tarefas </title>
+</head>
+
+<body>
+    <h2> Nova tarefa </h2>
+    <p> Usuário: {{ usuario }}</p>
+
+    <h3> Nova tarefa </h3>
+    <form action = "/tarefas" method="post"> 
+        <input type ="text" name="titulo" placeholder = "Descrição da tarefa" required>
+        <button type = "submit"> Adicionar </button>
+    </form>
+    <h3> Tarefas </h3>
+    <hr>
+    <a href="/tarefas">Todas</a> |
+    <a href="/tarefas/status/afazer">A fazer</a> |
+    <a href="/tarefas/status/andamento">Em andamento</a> |
+    <a href="/tarefas/status/concluida">Concluídas</a>
+    <hr>
+
+    <!-- Filtro ativo -->
+    {% if filtro %}
+        <p><strong>Filtro ativo:</strong> {{ filtro }}</p>
+    {% endif %}
+    <ul>
+{% for tarefa in tarefas %}
+    <li>
+        <strong>{{ tarefa.titulo }}</strong> — {{ tarefa.status }}
+
+        <form method="post" action="/tarefas/{{ tarefa.id }}/status">
+            <select name="status">
+                <option>A fazer</option>
+                <option>Em andamento</option>
+                <option>Concluída</option>
+            </select>
+            <button type="submit">Atualizar</button>
+        </form>
+    </li>
+{% endfor %}
+</ul>
+
+    <br>
+    <a href = "/logout">Sair</a>
+</body>
+
+>>>>>>> 3f66843b8ea27308dfe7b187879478ff13d35056
 </html>

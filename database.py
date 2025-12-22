@@ -1,6 +1,9 @@
 import os
+from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+load_dotenv()
 
 
 def get_connection():
@@ -33,7 +36,7 @@ def adicionar_tarefa(usuario, titulo):
 
     cursor.execute(
         "INSERT INTO tarefas (usuario, titulo, status) VALUES (%s, %s, %s)",
-        (usuario, titulo, "pendente")
+        (usuario, titulo, "A fazer")
     )
 
     conn.commit()
@@ -45,7 +48,7 @@ def listar_todas_tarefas():
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT id, titulo, status, usuario FROM tarefas"
+        "SELECT id, titulo, status, usuario FROM tarefas ORDER BY id DESC"
     )
 
     tarefas = cursor.fetchall()
@@ -71,7 +74,7 @@ def listar_tarefas_por_status(status):
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT id, titulo, status FROM tarefas WHERE status = %s",
+        "SELECT id, titulo, status, usuario FROM tarefas WHERE status = %s",
         (status,)
     )
 
