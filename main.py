@@ -14,17 +14,16 @@ from database import (
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Cria a tabela no Supabase ao iniciar
+    # Executa UMA vez ao iniciar o app
     criar_tabela()
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
 templates = Jinja2Templates(directory="templates")
 
 usuarios_autorizados = ["Seme", "Amanda", "Fernanda", "Aline"]
-
-criar_tabela()
 
 
 @app.get("/")
@@ -41,12 +40,12 @@ def home(request: Request):
 
 
 @app.post("/login")
-def login(usuario: str = Form(...)):
+def login(request: Request, usuario: str = Form(...)):
     if usuario not in usuarios_autorizados:
         return templates.TemplateResponse(
             "login.html",
             {
-                "request": Request,
+                "request": request,
                 "erro": "Usuário não autorizado"
             }
         )

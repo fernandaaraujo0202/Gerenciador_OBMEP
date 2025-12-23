@@ -1,20 +1,24 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+# carrega o .env (LOCAL) ou ignora se estiver no Railway
+load_dotenv()
 
 
 def get_connection():
-    url = os.environ.get("DATABASE_URL")
+    url = os.getenv("DATABASE_URL")
+
     if not url:
         raise ValueError(
-            "ERRO: A variável DATABASE_URL não foi configurada no Railway!")
+            "ERRO: A variável DATABASE_URL não foi configurada no ambiente!"
+        )
 
     return psycopg2.connect(
         url,
         cursor_factory=RealDictCursor,
-        sslmode='require'
+        sslmode="require"
     )
 
 
