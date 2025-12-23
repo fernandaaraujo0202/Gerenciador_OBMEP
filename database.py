@@ -14,26 +14,6 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 # Cria o client Supabase
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Função para criar a tabela caso ainda não exista
-
-
-def criar_tabela():
-    # Supabase normalmente já cria tabelas via dashboard ou migrations,
-    # mas se quiser criar via Python, use a API SQL:
-    supabase.rpc(
-        "sql",
-        {"query": """
-        CREATE TABLE IF NOT EXISTS tarefas (
-            id SERIAL PRIMARY KEY,
-            descricao TEXT NOT NULL,
-            status TEXT,
-            data TIMESTAMP DEFAULT NOW(),
-            responsavel TEXT,
-            observacoes TEXT,
-            pdf TEXT
-        );
-        """}
-    ).execute()
 
 # Funções de manipulação de tarefas
 
