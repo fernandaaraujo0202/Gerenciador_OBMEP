@@ -1,92 +1,57 @@
+# database.py
 import os
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from datetime import datetime
+from supabase import create_client
 from dotenv import load_dotenv
 
-# carrega o .env (LOCAL) ou ignora se estiver no Railway
-load_dotenv()
+load_dotenv()  # Para carregar variáveis do .env local
 
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-def get_connection():
-    url = os.getenv("DATABASE_URL")
-
-    if not url:
-        raise ValueError(
-            "ERRO: A variável DATABASE_URL não foi configurada no ambiente!"
-        )
-
-    return psycopg2.connect(
-        url,
-        cursor_factory=RealDictCursor,
-        sslmode="require"
-    )
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 def criar_tabela():
-    conn = get_connection()
-    cursor = conn.cursor()
+    """
+    Via API, criar tabela não é possível.
+    Execute este SQL no Supabase:
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tarefas (
-            id SERIAL PRIMARY KEY,
-            titulo TEXT NOT NULL,
-            status TEXT NOT NULL,
-            usuario TEXT NOT NULL
-        );
-    """)
+    create table if not exists tarefas (
+        id serial primary key,
+        descricao text not null,
+        status text not null,
+        data timestamp default now(),
+        responsavel text not null,
+        observacoes text,
+        pdf text
+    );
+    """
+    pass
 
-    conn.commit()
-    conn.close()
 
-
-def adicionar_tarefa(usuario, titulo):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "INSERT INTO tarefas (usuario, titulo, status) VALUES (%s, %s, %s)",
-        (usuario, titulo, "A fazer")
-    )
-
-    conn.commit()
-    conn.close()
+def adicionar_tarefa(responsavel, descricao, observacoes="", pdf=""):
+    supabase.table("tarefas").insert({
+        "responsavel": responsavel,
+        "descricao": descricao,
+        "status": "A fazer",
+        "data": datetime.now(),
+        "observacoes": observacoes,
+        "pdf": pdf
+    }).execute()
 
 
 def listar_todas_tarefas():
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT id, titulo, status, usuario FROM tarefas ORDER BY id DESC"
-    )
-
-    tarefas = cursor.fetchall()
-    conn.close()
-    return tarefas
+    res = supabase.table("tarefas").select(
+        "*").order("id", desc=True).execute()
+    return res.data
 
 
 def atualizar_tarefas(tarefa_id, novo_status):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "UPDATE tarefas SET status = %s WHERE id = %s",
-        (novo_status, tarefa_id)
-    )
-
-    conn.commit()
-    conn.close()
+    supabase.table("tarefas").update(
+        {"status": novo_status}).eq("id", tarefa_id).execute()
 
 
 def listar_tarefas_por_status(status):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT id, titulo, status, usuario FROM tarefas WHERE status = %s",
-        (status,)
-    )
-
-    tarefas = cursor.fetchall()
-    conn.close()
-    return tarefas
+    res = supabase.table("tarefas").select("*").eq("status", status).execute()
+    return res.data

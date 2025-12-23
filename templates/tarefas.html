@@ -1,104 +1,84 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title> Tarefas </title>
+    <title>Gerenciador de Tarefas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        form { margin-bottom: 20px; }
+        input[type="text"], textarea { width: 100%; padding: 6px; margin: 4px 0; }
+        input[type="submit"] { padding: 8px 16px; }
+        .status-button { margin-right: 5px; }
+    </style>
 </head>
-
 <body>
-    <h2> Nova tarefa </h2>
-    <p> Usuário: {{ usuario }}</p>
 
-    <h3> Nova tarefa </h3>
-    <form action = "/tarefas" method="post"> 
-        <input type ="text" name="titulo" placeholder = "Descrição da tarefa" required>
-        <button type = "submit"> Adicionar </button>
-    </form>
-    <h3> Tarefas </h3>
-    <hr>
-    <a href="/tarefas">Todas</a> |
-    <a href="/tarefas/status/afazer">A fazer</a> |
-    <a href="/tarefas/status/andamento">Em andamento</a> |
-    <a href="/tarefas/status/concluida">Concluídas</a>
-    <hr>
+<h2>Bem-vindo, {{ usuario }}</h2>
+<a href="/logout">Sair</a>
 
-    <!-- Filtro ativo -->
-    {% if filtro %}
-        <p><strong>Filtro ativo:</strong> {{ filtro }}</p>
-    {% endif %}
-    <ul>
-{% for tarefa in tarefas %}
-    <li>
-        <strong>{{ tarefa.titulo }}</strong> — {{ tarefa.status }}
+<h3>Criar nova tarefa</h3>
+<form action="/tarefas" method="post">
+    <label>Descrição:</label><br>
+    <textarea name="descricao" required></textarea><br>
 
-        <form method="post" action="/tarefas/{{ tarefa.id }}/status">
-            <select name="status">
-                <option>A fazer</option>
-                <option>Em andamento</option>
-                <option>Concluída</option>
-            </select>
-            <button type="submit">Atualizar</button>
-        </form>
-    </li>
-{% endfor %}
-</ul>
+    <label>Observações:</label><br>
+    <textarea name="observacoes"></textarea><br>
 
-    <br>
-    <a href = "/logout">Sair</a>
+    <label>PDF (link ou nome):</label><br>
+    <input type="text" name="pdf"><br>
+
+    <input type="submit" value="Adicionar tarefa">
+</form>
+
+<h3>Tarefas {% if filtro %} - Filtradas por {{ filtro }}{% endif %}</h3>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Descrição</th>
+            <th>Status</th>
+            <th>Data</th>
+            <th>Responsável</th>
+            <th>Observações</th>
+            <th>PDF</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for tarefa in tarefas %}
+        <tr>
+            <td>{{ tarefa.id }}</td>
+            <td>{{ tarefa.descricao }}</td>
+            <td>{{ tarefa.status }}</td>
+            <td>{{ tarefa.data }}</td>
+            <td>{{ tarefa.responsavel }}</td>
+            <td>{{ tarefa.observacoes }}</td>
+            <td>
+                {% if tarefa.pdf %}
+                    <a href="{{ tarefa.pdf }}" target="_blank">PDF</a>
+                {% endif %}
+            </td>
+            <td>
+                <form action="/tarefas/{{ tarefa.id }}/status" method="post" style="display:inline;">
+                    <input type="hidden" name="status" value="A fazer">
+                    <input type="submit" value="A fazer" class="status-button">
+                </form>
+                <form action="/tarefas/{{ tarefa.id }}/status" method="post" style="display:inline;">
+                    <input type="hidden" name="status" value="Em andamento">
+                    <input type="submit" value="Em andamento" class="status-button">
+                </form>
+                <form action="/tarefas/{{ tarefa.id }}/status" method="post" style="display:inline;">
+                    <input type="hidden" name="status" value="Concluída">
+                    <input type="submit" value="Concluída" class="status-button">
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
 </body>
-
-=======
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="UTF-8">
-    <title> Tarefas </title>
-</head>
-
-<body>
-    <h2> Nova tarefa </h2>
-    <p> Usuário: {{ usuario }}</p>
-
-    <h3> Nova tarefa </h3>
-    <form action = "/tarefas" method="post"> 
-        <input type ="text" name="titulo" placeholder = "Descrição da tarefa" required>
-        <button type = "submit"> Adicionar </button>
-    </form>
-    <h3> Tarefas </h3>
-    <hr>
-    <a href="/tarefas">Todas</a> |
-    <a href="/tarefas/status/afazer">A fazer</a> |
-    <a href="/tarefas/status/andamento">Em andamento</a> |
-    <a href="/tarefas/status/concluida">Concluídas</a>
-    <hr>
-
-    <!-- Filtro ativo -->
-    {% if filtro %}
-        <p><strong>Filtro ativo:</strong> {{ filtro }}</p>
-    {% endif %}
-    <ul>
-{% for tarefa in tarefas %}
-    <li>
-        <strong>{{ tarefa.titulo }}</strong> — {{ tarefa.status }}
-
-        <form method="post" action="/tarefas/{{ tarefa.id }}/status">
-            <select name="status">
-                <option>A fazer</option>
-                <option>Em andamento</option>
-                <option>Concluída</option>
-            </select>
-            <button type="submit">Atualizar</button>
-        </form>
-    </li>
-{% endfor %}
-</ul>
-
-    <br>
-    <a href = "/logout">Sair</a>
-</body>
-
->>>>>>> 3f66843b8ea27308dfe7b187879478ff13d35056
 </html>
