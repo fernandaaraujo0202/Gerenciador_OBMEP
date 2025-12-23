@@ -1,6 +1,9 @@
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from database import listar_todas_tarefas, criar_tarefa
+import os
+import uvicorn
+
 
 app = FastAPI(title="Gerenciador OBMEP")
 
@@ -32,3 +35,8 @@ def nova_tarefa(
     return f"Tarefa '{descricao}' criada com sucesso!"
 
 # Atualizar ou deletar podem ser adicionados da mesma forma
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
