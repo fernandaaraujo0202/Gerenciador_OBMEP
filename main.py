@@ -1,39 +1,34 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
-from database import criar_tabela, listar_todas_tarefas, criar_tarefa
+from fastapi import FastAPI, Form
+from fastapi.responses import HTMLResponse
+from database import listar_todas_tarefas, criar_tarefa
 
-app = FastAPI()
+app = FastAPI(title="Gerenciador OBMEP")
 
-# Cria a tabela ao iniciar o app
-
-
-@app.on_event("startup")
-def startup_event():
-    criar_tabela()
-
-# Página inicial
+# Rota home
 
 
 @app.get("/", response_class=HTMLResponse)
 def home():
-    return "<h1>Bem-vindo ao Gerenciador OBMEP!</h1>"
-
-# Rota para listar tarefas
-
-
-@app.get("/tarefas", response_class=HTMLResponse)
-def tarefas():
-    tarefas_db = listar_todas_tarefas()
-    html = "<h2>Tarefas</h2><ul>"
-    for t in tarefas_db:
-        html += f"<li>{t['id']} - {t['descricao']} - {t['status']} - {t['responsavel']}</li>"
+    tarefas = listar_todas_tarefas()
+    html = "<h1>Lista de Tarefas</h1><ul>"
+    for t in tarefas:
+        html += f"<li>{t['id']}: {t['descricao']} - {t['status']}</li>"
     html += "</ul>"
     return html
 
-# Rota para criar tarefas via formulário
+# Criar tarefa via formulário
 
 
 @app.post("/tarefas", response_class=HTMLResponse)
-def criar(request: Request, descricao: str = Form(...), status: str = Form(""), responsavel: str = Form(""), observacoes: str = Form(""), pdf: str = Form("")):
-    criar_tarefa(descricao, status, responsavel, observacoes, pdf)
-    return RedirectResponse(url="/tarefas", status_code=302)
+def nova_tarefa(
+    descricao: str = Form(...),
+    status: str = Form(...),
+    data: str = Form(...),
+    responsavel: str = Form(...),
+    observacoes: str = Form(...),
+    pdf: str = Form("")
+):
+    criar_tarefa(descricao, status, data, responsavel, observacoes, pdf)
+    return f"Tarefa '{descricao}' criada com sucesso!"
+
+# Atualizar ou deletar podem ser adicionados da mesma forma
