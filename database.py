@@ -9,7 +9,7 @@ def get_connection():
     return psycopg2.connect(
         os.environ["DATABASE_URL"],
         cursor_factory=RealDictCursor,
-        sslmode='require'
+        sslmode='require'  # Isso é obrigatório para o Supabase
     )
 
 

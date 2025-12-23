@@ -13,21 +13,15 @@ from database import (
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # O que colocar aqui roda quando o site LIGA
+    # Cria a tabela no Supabase ao iniciar
     criar_tabela()
     yield
-    # O que colocar aqui roda quando o site DESLIGA (opcional)
 
 app = FastAPI(lifespan=lifespan)
 
 templates = Jinja2Templates(directory="templates")
 
 usuarios_autorizados = ["Seme", "Amanda", "Fernanda", "Aline"]
-
-
-@app.on_event("startup")
-def startup_event()
-
 
 criar_tabela()
 
