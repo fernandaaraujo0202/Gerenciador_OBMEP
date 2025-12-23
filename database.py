@@ -3,18 +3,6 @@ from supabase import create_client, Client
 from datetime import datetime
 
 
-# Pega as variáveis de ambiente definidas no Railway
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise Exception(
-        "As variáveis SUPABASE_URL e SUPABASE_KEY precisam estar definidas!")
-
-# Cria o client Supabase
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-
 # Funções de manipulação de tarefas
 
 
