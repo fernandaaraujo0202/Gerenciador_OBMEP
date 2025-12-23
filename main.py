@@ -27,7 +27,7 @@ def home():
 
 @app.post("/tarefas", response_class=HTMLResponse)
 def nova_tarefa(descricao: str = Form(...), status: str = Form("Pendente"),
-                responsavel: str = Form(""), observacoes: str = Form(""), pdf: str = Form("")):
+                responsavel: str = Form(""), observacoes: str = Form(""), PDF: str = Form("")):
     criar_tarefa(descricao, status, responsavel, observacoes, pdf)
     return "Tarefa criada! <a href='/'>Voltar</a>"
 
