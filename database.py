@@ -25,7 +25,7 @@ def criar_tarefa(descricao, status="", responsavel="", observacoes="", pdf=""):
         "Status": status,
         "Responsável": responsavel,
         "Observações": observacoes,
-        "pdf": pdf  # Adicione esta coluna no Supabase!
+        "PDF": PDF  # Adicione esta coluna no Supabase!
     }
     response = supabase.table("tarefas").insert(dados).execute()
     return response.data
