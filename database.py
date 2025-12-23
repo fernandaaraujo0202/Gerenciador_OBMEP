@@ -16,7 +16,7 @@ def listar_todas_tarefas():
     return response.data
 
 
-def criar_tarefa(descricao, status="", responsavel="", observacoes="", pdf=""):
+def criar_tarefa(descricao, status="", responsavel="", observacoes="", PDF=""):
     if not supabase:
         return None
     # Ajustado para bater com as colunas do seu print
