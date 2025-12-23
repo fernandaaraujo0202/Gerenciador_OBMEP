@@ -6,10 +6,15 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
 def get_connection():
+    url = os.environ.get("DATABASE_URL")
+    if not url:
+        raise ValueError(
+            "ERRO: A variável DATABASE_URL não foi configurada no Railway!")
+
     return psycopg2.connect(
-        os.environ["DATABASE_URL"],
+        url,
         cursor_factory=RealDictCursor,
-        sslmode='require'  # Isso é obrigatório para o Supabase
+        sslmode='require'
     )
 
 
