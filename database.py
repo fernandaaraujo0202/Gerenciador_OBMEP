@@ -2,6 +2,7 @@ import os
 from supabase import create_client, Client
 from datetime import datetime
 
+
 # Pega as variáveis de ambiente definidas no Railway
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
