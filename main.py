@@ -1,102 +1,39 @@
-# main.py
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
-from datetime import datetime
-
-from database import (
-    listar_todas_tarefas,
-    adicionar_tarefa,
-    atualizar_tarefas,
-    listar_tarefas_por_status
-)
+from fastapi.responses import HTMLResponse, RedirectResponse
+from database import criar_tabela, listar_todas_tarefas, criar_tarefa
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
 
-usuarios_autorizados = ["Seme", "Amanda", "Fernanda", "Aline"]
-
-
-@app.get("/")
-def home(request: Request):
-    usuario = request.cookies.get("usuario")
-    if not usuario:
-        return templates.TemplateResponse("login.html", {"request": request})
-    return RedirectResponse("/tarefas", status_code=302)
+# Cria a tabela ao iniciar o app
 
 
-@app.post("/login")
-def login(request: Request, usuario: str = Form(...)):
-    if usuario not in usuarios_autorizados:
-        return templates.TemplateResponse(
-            "login.html",
-            {"request": request, "erro": "Usuário não autorizado"}
-        )
-    response = RedirectResponse("/tarefas", status_code=302)
-    response.set_cookie("usuario", usuario, httponly=True)
-    return response
+@app.on_event("startup")
+def startup_event():
+    criar_tabela()
+
+# Página inicial
 
 
-@app.get("/logout")
-def logout():
-    response = RedirectResponse("/", status_code=302)
-    response.delete_cookie("usuario")
-    return response
+@app.get("/", response_class=HTMLResponse)
+def home():
+    return "<h1>Bem-vindo ao Gerenciador OBMEP!</h1>"
+
+# Rota para listar tarefas
 
 
-@app.get("/tarefas")
-def tarefas(request: Request):
-    usuario = request.cookies.get("usuario")
-    if not usuario:
-        return RedirectResponse("/", status_code=302)
-
+@app.get("/tarefas", response_class=HTMLResponse)
+def tarefas():
     tarefas_db = listar_todas_tarefas()
-    return templates.TemplateResponse(
-        "tarefas.html",
-        {"request": request, "usuario": usuario, "tarefas": tarefas_db}
-    )
+    html = "<h2>Tarefas</h2><ul>"
+    for t in tarefas_db:
+        html += f"<li>{t['id']} - {t['descricao']} - {t['status']} - {t['responsavel']}</li>"
+    html += "</ul>"
+    return html
+
+# Rota para criar tarefas via formulário
 
 
-@app.post("/tarefas")
-def criar_tarefa(
-    request: Request,
-    descricao: str = Form(...),
-    observacoes: str = Form(""),
-    pdf: str = Form("")
-):
-    responsavel = request.cookies.get("usuario")
-    if not responsavel:
-        return RedirectResponse("/", status_code=302)
-
-    adicionar_tarefa(responsavel, descricao, observacoes, pdf)
-    return RedirectResponse("/tarefas", status_code=302)
-
-
-@app.post("/tarefas/{tarefa_id}/status")
-def mudar_status(tarefa_id: int, status: str = Form(...)):
-    atualizar_tarefas(tarefa_id, status)
-    return RedirectResponse("/tarefas", status_code=302)
-
-
-@app.get("/tarefas/status/{status}")
-def filtrar_status(request: Request, status: str):
-    mapa = {
-        "afazer": "A fazer",
-        "andamento": "Em andamento",
-        "concluida": "Concluída"
-    }
-
-    status_real = mapa.get(status)
-    if not status_real:
-        return RedirectResponse("/tarefas", status_code=302)
-
-    tarefas_db = listar_tarefas_por_status(status_real)
-    return templates.TemplateResponse(
-        "tarefas.html",
-        {"request": request, "tarefas": tarefas_db, "filtro": status_real}
-    )
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+@app.post("/tarefas", response_class=HTMLResponse)
+def criar(request: Request, descricao: str = Form(...), status: str = Form(""), responsavel: str = Form(""), observacoes: str = Form(""), pdf: str = Form("")):
+    criar_tarefa(descricao, status, responsavel, observacoes, pdf)
+    return RedirectResponse(url="/tarefas", status_code=302)

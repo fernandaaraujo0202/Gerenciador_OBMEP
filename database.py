@@ -1,55 +1,54 @@
-# database.py
 import os
+from supabase import create_client, Client
 from datetime import datetime
-from supabase import create_client
 
+# Pega as variáveis de ambiente definidas no Railway
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise Exception(
+        "As variáveis SUPABASE_URL e SUPABASE_KEY precisam estar definidas!")
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Cria o client Supabase
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Função para criar a tabela caso ainda não exista
 
 
 def criar_tabela():
-    """
-    Via API, criar tabela não é possível.
-    Execute este SQL no Supabase:
+    # Supabase normalmente já cria tabelas via dashboard ou migrations,
+    # mas se quiser criar via Python, use a API SQL:
+    supabase.rpc(
+        "sql",
+        {"query": """
+        CREATE TABLE IF NOT EXISTS tarefas (
+            id SERIAL PRIMARY KEY,
+            descricao TEXT NOT NULL,
+            status TEXT,
+            data TIMESTAMP DEFAULT NOW(),
+            responsavel TEXT,
+            observacoes TEXT,
+            pdf TEXT
+        );
+        """}
+    ).execute()
 
-    create table if not exists tarefas (
-        id serial primary key,
-        descricao text not null,
-        status text not null,
-        data timestamp default now(),
-        responsavel text not null,
-        observacoes text,
-        pdf text
-    );
-    """
-    pass
-
-
-def adicionar_tarefa(responsavel, descricao, observacoes="", pdf=""):
-    supabase.table("tarefas").insert({
-        "responsavel": responsavel,
-        "descricao": descricao,
-        "status": "A fazer",
-        "data": datetime.now(),
-        "observacoes": observacoes,
-        "pdf": pdf
-    }).execute()
+# Funções de manipulação de tarefas
 
 
 def listar_todas_tarefas():
-    res = supabase.table("tarefas").select(
+    response = supabase.table("tarefas").select(
         "*").order("id", desc=True).execute()
-    return res.data
+    return response.data
 
 
-def atualizar_tarefas(tarefa_id, novo_status):
-    supabase.table("tarefas").update(
-        {"status": novo_status}).eq("id", tarefa_id).execute()
-
-
-def listar_tarefas_por_status(status):
-    res = supabase.table("tarefas").select("*").eq("status", status).execute()
-    return res.data
+def criar_tarefa(descricao, status="", responsavel="", observacoes="", pdf=""):
+    response = supabase.table("tarefas").insert({
+        "descricao": descricao,
+        "status": status,
+        "responsavel": responsavel,
+        "observacoes": observacoes,
+        "pdf": pdf
+    }).execute()
+    return response.data
