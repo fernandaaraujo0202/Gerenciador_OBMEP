@@ -3,8 +3,13 @@ from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from database import listar_todas_tarefas, criar_tarefa
+import uvicorn
 
 app = FastAPI()
+
+# pega porta do Render ou default local
+port = int(os.environ.get("PORT", 10000))
+
 
 # Configura a pasta de templates
 templates = Jinja2Templates(directory="templates")
@@ -48,4 +53,4 @@ def nova_tarefa(
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port, reload=True)
