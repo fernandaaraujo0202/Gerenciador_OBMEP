@@ -50,4 +50,4 @@ def salvar_tarefa(
     elif any(dados.values()):
         database.inserir_tarefa(dados)
 
-    return RedirectResponse("/tarefas", status_code=303)
+    return RedirectResponse("/", status_code=303)
