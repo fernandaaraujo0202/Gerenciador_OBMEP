@@ -1,10 +1,13 @@
 import os
-import uvicorn
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from database import listar_todas_tarefas, criar_tarefa
 
 app = FastAPI()
+
+# Configura a pasta de templates
+templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/health")
@@ -13,25 +16,34 @@ def health():
 
 
 @app.get("/", response_class=HTMLResponse)
-def home():
+def home(request: Request):
     tarefas = listar_todas_tarefas()
-    html = "<h1>Gerenciador OBMEP</h1><hr><ul>"
-    for t in tarefas:
-        # Usando os nomes das colunas com a primeira letra maiúscula conforme seu print
-        desc = t.get('Descrição', 'Sem título')
-        status = t.get('Status', 'Pendente')
-        html += f"<li>{desc} - <b>{status}</b></li>"
-    html += "</ul>"
-    return html
+    return templates.TemplateResponse("tarefas.html", {
+        "request": request,
+        "tarefas": tarefas,
+        "usuario": "Usuário"
+    })
 
 
 @app.post("/tarefas", response_class=HTMLResponse)
-def nova_tarefa(descricao: str = Form(...), status: str = Form("Pendente"),
-                responsavel: str = Form(""), observacoes: str = Form(""), PDF: str = Form("")):
+def nova_tarefa(
+    request: Request,
+    descricao: str = Form(...),
+    status: str = Form("Pendente"),
+    responsavel: str = Form(""),
+    observacoes: str = Form(""),
+    PDF: str = Form("")
+):
     criar_tarefa(descricao, status, responsavel, observacoes, PDF)
-    return "Tarefa criada! <a href='/'>Voltar</a>"
+    tarefas = listar_todas_tarefas()
+    return templates.TemplateResponse("tarefas.html", {
+        "request": request,
+        "tarefas": tarefas,
+        "usuario": "Usuário"
+    })
 
 
 if __name__ == "__main__":
+    import uvicorn
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
