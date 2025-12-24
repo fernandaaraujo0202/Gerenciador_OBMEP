@@ -15,7 +15,7 @@ TABLE = "tarefas"
 
 
 def listar_tarefas():
-    return supabase.table(TABLE).select("*").order("id").execute().data or []
+    return supabase.table(TABLE).select("*").order("ID").execute().data or []
 
 
 def inserir_tarefa(dados):
@@ -23,8 +23,8 @@ def inserir_tarefa(dados):
 
 
 def atualizar_tarefa(id, dados):
-    supabase.table(TABLE).update(dados).eq("id", id).execute()
+    supabase.table(TABLE).update(dados).eq("ID", id).execute()
 
 
 def remover_tarefas(ids):
-    supabase.table(TABLE).delete().in_("id", ids).execute()
+    supabase.table(TABLE).delete().in_("ID", ids).execute()
