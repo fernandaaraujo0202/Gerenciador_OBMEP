@@ -8,24 +8,25 @@ supabase: Client = create_client(url, key) if url and key else None
 
 
 def listar_todas_tarefas():
-    if not supabase:
-        return []
-    # Usando os nomes exatos das colunas da sua imagem
-    response = supabase.table("tarefas").select(
-        "*").order("ID", desc=True).execute()
+    # Faz a consulta na tabela "tarefas"
+    response = supabase.table("tarefas") \
+        .select("*") \
+        .order("ID", desc=True) \
+        .execute()
     return response.data
 
 
-def criar_tarefa(descricao, status="", responsavel="", observacoes="", PDF=""):
+def criar_tarefa(descricao, status="", data="", responsavel="", observacoes="", PDF=""):
     if not supabase:
         return None
     # Ajustado para bater com as colunas do seu print
     dados = {
         "Descrição": descricao,
         "Status": status,
+        "Data": data,
         "Responsável": responsavel,
         "Observações": observacoes,
-        "PDF": PDF  # Adicione esta coluna no Supabase!
+        "PDF": PDF
     }
     response = supabase.table("tarefas").insert(dados).execute()
     return response.data

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Gerenciador de Tarefas</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
+<!DOCTYPE html>    <!--tipo do documento -->
+<html lang="pt-br"> <!-- idioma -->
+<head>  <!-- cabeçalho: config invisíveis da página-->
+    <meta charset="UTF-8">  <!-- o que permite ter ç, acento e emojis -->
+    <title>Gerenciador de Tarefas</title> <!-- nome da página -->
+    <style>   
+        body { font-family: Arial, sans-serif; margin: 20px; }  
         table { border-collapse: collapse; width: 100%; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
@@ -14,55 +14,65 @@
         .status-button { margin-right: 5px; }
     </style>
 </head>
+
+
 <body>
 
-<h2>Bem-vindo, {{ usuario }}</h2>
-<a href="/logout">Sair</a>
+<h2> Tabela de tarefas </h2>   <!-- título visível -->
+<a href="/logout">Sair</a>  <!-- botão clicável para sair, que encaminha para o link associado -->
 
-<h3>Criar nova tarefa</h3>
-<form action="/tarefas" method="post">
-    <label>Descrição:</label><br>
-    <textarea name="descricao" required></textarea><br>
+<h3> Registrar nova tarefa </h3>  <!-- subtítulo -->
+<form action="/tarefas" method="post">    <!-- form é a barra editável, sua ação movimenta a rota ("/tarefas") no método "post"-->
+    <label>Descrição:</label><br>   <!-- nome do campo -->
+    <textarea name="descricao" required></textarea><br>  <!-- textarea permite quebra de linha e textos grandes. name = "descricao" é o que o código vai procurar para ler (RG)   -->
 
-    <label>Observações:</label><br>
-    <textarea name="observacoes"></textarea><br>
+    <label>Status:</label><br>   <!-- nome do campo -->
+    <textarea name="status"></textarea><br>
 
-    <label>PDF (link ou nome):</label><br>
-    <input type="text" name="PDF"><br>
+    <label>Data:</label><br>   <!-- nome do campo -->
+    <input type="date" name="data" id="data">
 
-    <input type="submit" value="Adicionar tarefa">
+    <label>Responsável:</label><br>   <!-- nome do campo -->
+    <textarea name="responsavel"></textarea><br>
+
+    <label>Observações:</label><br>  <!-- nome do campo -->
+    <textarea name="observacoes"></textarea><br> <!--quando eu disser "observacoes" no código ele vai encontrar o texto escrito nesse campo-->
+
+    <label>PDF (link ou nome):</label><br> <!-- nome do campo-->
+    <input type="text" name="PDF"><br> <!-- input type usado para dados curtos, não permite "enter" para quebra de linha-->
+
+    <button type="submit" >Adicionar tarefa </button>  <!-- botão de enviar com o nome "Adicionar tarefa"-->
 </form>
 
-<h3>Tarefas</h3>
+<h3>Tarefas</h3> <!-- título -->
 <table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Descrição</th>
+    <thead>  <!-- t head é o cabeçalho da tabela -ambiente que ficam os nomes de cada coluna -->
+        <tr>   <!-- é a abertura de uma linha -->
+            <th>ID</th> <!-- th define cada cédula dentro dessa linha do cabeçalho (usado para títulos)-->
+            <th>Descrição</th>  
             <th>Status</th>
             <th>Data</th>
             <th>Responsável</th>
             <th>Observações</th>
             <th>PDF</th>
-            <th>Ações</th>
-        </tr>
+        </tr>  <!--- fechamento de uma linha -->
     </thead>
-    <tbody>
+    <tbody> <!-- corpo da tabela-->
     {% for tarefa in tarefas %}
-        <tr>
-            <td>{{ tarefa.ID }}</td>
+        <tr> <!-- abre uma linha-->
+            <td>{{ tarefa.ID }}</td>  <!-- pega a tarefa da base de dados e exibe na primeira cédula-->
             <td>{{ tarefa.Descrição }}</td>
             <td>{{ tarefa.Status }}</td>
             <td>{{ tarefa.Data if tarefa.Data else '' }}</td>
             <td>{{ tarefa.Responsável }}</td>
             <td>{{ tarefa.Observações }}</td>
             <td>
-                {% if tarefa.PDF %}
-                    <a href="{{ tarefa.PDF }}" target="_blank">PDF</a>
+                {% if tarefa.PDF %} <!-- se tiver algum PDF-->
+                <a href="{{ tarefa.PDF }}" target="_blank">PDF</a>  <!-- exibe EM NOVA ABA o atributo PDF guardado no objeto tarefa em forma de link -->
                 {% endif %}
             </td>
-            <td>
-                <form action="/tarefas/{{ tarefa.ID }}/status" method="post" style="display:inline;">
+            <td> 
+                <form action="/tarefas/{{ tarefa.ID }}/status" method="post" style="display:inline;"> 
                     <input type="hidden" name="status" value="A fazer">
                     <input type="submit" value="A fazer" class="status-button">
                 </form>

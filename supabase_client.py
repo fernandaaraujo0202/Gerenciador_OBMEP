@@ -1,6 +1,6 @@
 from supabase import create_client
 
-SUPABASE_URL = "https://xyz.supabase.co"  # cole aqui seu Project URL
-SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY"   # cole aqui sua anon/public key
+SUPABASE_URL = "https: // lusicardtghmrwfokdif.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1c2ljYXJkdGdobXJ3Zm9rZGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0Mjk2MDEsImV4cCI6MjA4MjAwNTYwMX0.Jolbn1N9TBJlj4t0PIzWp404989nWeWLeVzn4TDlOgo"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)

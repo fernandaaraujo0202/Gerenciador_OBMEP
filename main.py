@@ -29,17 +29,19 @@ def home(request: Request):
 def nova_tarefa(
     request: Request,
     descricao: str = Form(...),
-    status: str = Form("Pendente"),
+    status: str = Form(""),
+    data: str = Form(""),
     responsavel: str = Form(""),
     observacoes: str = Form(""),
     PDF: str = Form("")
 ):
-    criar_tarefa(descricao, status, responsavel, observacoes, PDF)
+    criar_tarefa(descricao, status, data, responsavel, observacoes, PDF)
+
     tarefas = listar_todas_tarefas()
+
     return templates.TemplateResponse("tarefas.html", {
         "request": request,
-        "tarefas": tarefas,
-        "usuario": "Usuário"
+        "tarefas": tarefas
     })
 
 
