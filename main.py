@@ -1,56 +1,53 @@
-import os
-from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from database import listar_todas_tarefas, criar_tarefa
-import uvicorn
+import database
+
 
 app = FastAPI()
-
-# pega porta do Render ou default local
-port = int(os.environ.get("PORT", 10000))
-
-
-# Configura a pasta de templates
 templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 def home(request: Request):
-    tarefas = listar_todas_tarefas()
-    return templates.TemplateResponse("tarefas.html", {
-        "request": request,
-        "tarefas": tarefas,
-        "usuario": "Usuário"
-    })
+    tarefas = database.listar_tarefas()
+    return templates.TemplateResponse(
+        "tarefas.html",
+        {"request": request, "tarefas": tarefas}
+    )
 
 
-@app.post("/tarefas", response_class=HTMLResponse)
-def nova_tarefa(
-    request: Request,
-    descricao: str = Form(...),
+@app.post("/tarefas")
+def salvar_tarefa(
+    id: str = Form(None),
+    descricao: str = Form(""),
     status: str = Form(""),
     data: str = Form(""),
     responsavel: str = Form(""),
     observacoes: str = Form(""),
-    PDF: str = Form("")
+    PDF: str = Form(""),
+    remover: str = Form(None)
 ):
-    criar_tarefa(descricao, status, data, responsavel, observacoes, PDF)
+    # 🗑️ Remover
+    if remover:
+        database.remover_tarefas([int(remover)])
+        return RedirectResponse("/", status_code=303)
 
-    tarefas = listar_todas_tarefas()
+    dados = {
+        "Descrição": descricao,
+        "Status": status,
+        "Data": data or None,
+        "Responsável": responsavel,
+        "Observações": observacoes,
+        "pdf": PDF
+    }
 
-    return templates.TemplateResponse("tarefas.html", {
-        "request": request,
-        "tarefas": tarefas
-    })
+    # ✏️ Atualizar
+    if id:
+        database.atualizar_tarefa(int(id), dados)
 
+    # ➕ Criar nova tarefa
+    elif any(dados.values()):
+        database.inserir_tarefa(dados)
 
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 10000))
-    uvicorn.run(app, host="0.0.0.0", port=port, reload=True)
+    return RedirectResponse("/", status_code=303)

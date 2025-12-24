@@ -2,35 +2,29 @@ import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()  # carrega .env se existir
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError("SUPABASE_URL ou SUPABASE_KEY não configuradas")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+TABLE = "tarefas"
 
 
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-
-supabase: Client = create_client(url, key) if url and key else None
+def listar_tarefas():
+    return supabase.table(TABLE).select("*").order("id").execute().data or []
 
 
-def listar_todas_tarefas():
-    # Faz a consulta na tabela "tarefas"
-    response = supabase.table("tarefas") \
-        .select("*") \
-        .order("ID", desc=True) \
-        .execute()
-    return response.data
+def inserir_tarefa(dados):
+    supabase.table(TABLE).insert(dados).execute()
 
 
-def criar_tarefa(descricao, status="", data="", responsavel="", observacoes="", PDF=""):
-    if not supabase:
-        return None
-    # Ajustado para bater com as colunas do seu print
-    dados = {
-        "Descrição": descricao,
-        "Status": status,
-        "Data": data,
-        "Responsável": responsavel,
-        "Observações": observacoes,
-        "PDF": PDF
-    }
-    response = supabase.table("tarefas").insert(dados).execute()
-    return response.data
+def atualizar_tarefa(id, dados):
+    supabase.table(TABLE).update(dados).eq("id", id).execute()
+
+
+def remover_tarefas(ids):
+    supabase.table(TABLE).delete().in_("id", ids).execute()

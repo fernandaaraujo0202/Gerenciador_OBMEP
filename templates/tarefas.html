@@ -1,92 +1,63 @@
-<!DOCTYPE html>    <!--tipo do documento -->
-<html lang="pt-br"> <!-- idioma -->
-<head>  <!-- cabeçalho: config invisíveis da página-->
-    <meta charset="UTF-8">  <!-- o que permite ter ç, acento e emojis -->
-    <title>Gerenciador de Tarefas</title> <!-- nome da página -->
-    <style>   
-        body { font-family: Arial, sans-serif; margin: 20px; }  
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciador de Tarefas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
         table { border-collapse: collapse; width: 100%; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
-        form { margin-bottom: 20px; }
-        input[type="text"], textarea { width: 100%; padding: 6px; margin: 4px 0; }
-        input[type="submit"] { padding: 8px 16px; }
-        .status-button { margin-right: 5px; }
+        td[contenteditable="true"] { background-color: #f9f9f9; }
     </style>
 </head>
-
-
 <body>
 
-<h2> Tabela de tarefas </h2>   <!-- título visível -->
-<a href="/logout">Sair</a>  <!-- botão clicável para sair, que encaminha para o link associado -->
+<h2>Tabela de tarefas</h2>
+<a href="/logout">Sair</a>
 
-<h3> Registrar nova tarefa </h3>  <!-- subtítulo -->
-<form action="/tarefas" method="post">    <!-- form é a barra editável, sua ação movimenta a rota ("/tarefas") no método "post"-->
-    <label>Descrição:</label><br>   <!-- nome do campo -->
-    <textarea name="descricao" required></textarea><br>  <!-- textarea permite quebra de linha e textos grandes. name = "descricao" é o que o código vai procurar para ler (RG)   -->
+<h3>Tarefas</h3>
 
-    <label>Status:</label><br>   <!-- nome do campo -->
-    <textarea name="status"></textarea><br>
-
-    <label>Data:</label><br>   <!-- nome do campo -->
-    <input type="date" name="data" id="data">
-
-    <label>Responsável:</label><br>   <!-- nome do campo -->
-    <textarea name="responsavel"></textarea><br>
-
-    <label>Observações:</label><br>  <!-- nome do campo -->
-    <textarea name="observacoes"></textarea><br> <!--quando eu disser "observacoes" no código ele vai encontrar o texto escrito nesse campo-->
-
-    <label>PDF (link ou nome):</label><br> <!-- nome do campo-->
-    <input type="text" name="PDF"><br> <!-- input type usado para dados curtos, não permite "enter" para quebra de linha-->
-
-    <button type="submit" >Adicionar tarefa </button>  <!-- botão de enviar com o nome "Adicionar tarefa"-->
-</form>
-
-<h3>Tarefas</h3> <!-- título -->
 <table>
-    <thead>  <!-- t head é o cabeçalho da tabela -ambiente que ficam os nomes de cada coluna -->
-        <tr>   <!-- é a abertura de uma linha -->
-            <th>ID</th> <!-- th define cada cédula dentro dessa linha do cabeçalho (usado para títulos)-->
-            <th>Descrição</th>  
+    <thead>
+        <tr>
+            <th>Selecionar</th>
+            <th>Descrição</th>
             <th>Status</th>
             <th>Data</th>
             <th>Responsável</th>
             <th>Observações</th>
             <th>PDF</th>
-        </tr>  <!--- fechamento de uma linha -->
-    </thead>
-    <tbody> <!-- corpo da tabela-->
-    {% for tarefa in tarefas %}
-        <tr> <!-- abre uma linha-->
-            <td>{{ tarefa.ID }}</td>  <!-- pega a tarefa da base de dados e exibe na primeira cédula-->
-            <td>{{ tarefa.Descrição }}</td>
-            <td>{{ tarefa.Status }}</td>
-            <td>{{ tarefa.Data if tarefa.Data else '' }}</td>
-            <td>{{ tarefa.Responsável }}</td>
-            <td>{{ tarefa.Observações }}</td>
-            <td>
-                {% if tarefa.PDF %} <!-- se tiver algum PDF-->
-                <a href="{{ tarefa.PDF }}" target="_blank">PDF</a>  <!-- exibe EM NOVA ABA o atributo PDF guardado no objeto tarefa em forma de link -->
-                {% endif %}
-            </td>
-            <td> 
-                <form action="/tarefas/{{ tarefa.ID }}/status" method="post" style="display:inline;"> 
-                    <input type="hidden" name="status" value="A fazer">
-                    <input type="submit" value="A fazer" class="status-button">
-                </form>
-                <form action="/tarefas/{{ tarefa.ID }}/status" method="post" style="display:inline;">
-                    <input type="hidden" name="status" value="Em andamento">
-                    <input type="submit" value="Em andamento" class="status-button">
-                </form>
-                <form action="/tarefas/{{ tarefa.ID }}/status" method="post" style="display:inline;">
-                    <input type="hidden" name="status" value="Concluída">
-                    <input type="submit" value="Concluída" class="status-button">
-                </form>
-            </td>
         </tr>
-    {% endfor %}
+    </thead>
+     <tbody>
+        {% for tarefa in tarefas %}
+        <form action="/tarefas" method="post"></form>
+            <tr>
+                <td><input type="checkbox" name="remover" value= "{{ tarefa.id }}" onchange="this.form.submit()" ></td>
+                <input type="hidden" name="id" value="{{ tarefa.id}}"> <!-- usado apenas no backend -->
+                <td><input type="text" name="descricao" value="{{ tarefa.descricao or '' }}"onchange="this.form.submit()"></td>
+                <td><input type="text" name="status" value="{{ tarefa.status or '' }}"onchange="this.form.submit()"></td>
+                <td><input type="date" name="data" value="{{ tarefa.data or '' }}"onchange="this.form.submit()"></td>
+                <td><input type="text" name="responsavel" value="{{ tarefa.responsavel or '' }}"onchange="this.form.submit()"></td>
+                <td><input type="text" name="observacoes" value="{{ tarefa.observacoes or '' }}"onchange="this.form.submit()"></td>
+                <td><input type="text" name="PDF" value="{{ tarefa.pdf or '' }}"onchange="this.form.submit()"></td>
+            </tr>
+        </form>
+        {% endfor %}
+
+        <!-- Linha vazia para nova tarefa -->
+        <tr>
+            <form action="/tarefas" method="post">
+                <td><input type="checkbox" name="remover" value = ""onchange="this.form.submit()"></td>
+                <td><input type="text" name="descricao"onchange="this.form.submit()"></td>
+                <td><input type="text" name="status"onchange="this.form.submit()"></td>
+                <td><input type="date" name="data"onchange="this.form.submit()"></td>
+                <td><input type="text" name="responsavel"onchange="this.form.submit()"></td>
+                <td><input type="text" name="observacoes"onchange="this.form.submit()"></td>
+                <td><input type="text" name="PDF"onchange="this.form.submit()"></td>
+            </form>
+        </tr>
     </tbody>
 </table>
 
