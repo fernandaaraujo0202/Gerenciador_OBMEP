@@ -39,7 +39,7 @@ def salvar_tarefa(
         "Data": data or None,
         "Responsável": responsavel,
         "Observações": observacoes,
-        "pdf": PDF
+        "PDF": PDF
     }
 
     # ✏️ Atualizar
@@ -50,4 +50,4 @@ def salvar_tarefa(
     elif any(dados.values()):
         database.inserir_tarefa(dados)
 
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/tarefas", status_code=303)
