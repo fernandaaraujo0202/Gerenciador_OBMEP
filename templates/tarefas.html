@@ -32,15 +32,15 @@
     </thead>
      <tbody>
         {% for tarefa in tarefas %}
-        <form action="/tarefas" method="post"></form>
+        <form action="/tarefas" method="post">
             <tr>
-                <td><input type="checkbox" name="remover" value= "{{ tarefa.id }}" onchange="this.form.submit()" ></td>
-                <input type="hidden" name="id" value="{{ tarefa.id}}"> <!-- usado apenas no backend -->
-                <td><input type="text" name="descricao" value="{{ tarefa.descricao or '' }}"onchange="this.form.submit()"></td>
-                <td><input type="text" name="status" value="{{ tarefa.status or '' }}"onchange="this.form.submit()"></td>
-                <td><input type="date" name="data" value="{{ tarefa.data or '' }}"onchange="this.form.submit()"></td>
-                <td><input type="text" name="responsavel" value="{{ tarefa.responsavel or '' }}"onchange="this.form.submit()"></td>
-                <td><input type="text" name="observacoes" value="{{ tarefa.observacoes or '' }}"onchange="this.form.submit()"></td>
+                <td><input type="checkbox" name="remover" value= "{{ tarefa.ID }}" onchange="this.form.submit()"></td>
+                <input type="hidden" name="id" value="{{ tarefa.ID }}"> <!-- usado apenas no backend -->
+                <td><input type="text" name="descricao" value="{{ tarefa.Descrição or '' }}" onchange="this.form.submit()" ></td>
+                <td><input type="text" name="status" value="{{ tarefa.Status or '' }}" onchange="this.form.submit()"></td>
+                <td><input type="date" name="data" value="{{ tarefa.Data or '' }}" onchange="this.form.submit()"></td>
+                <td><input type="text" name="responsavel" value="{{ tarefa.Responsável or '' }}"onchange="this.form.submit()"></td>
+                <td><input type="text" name="observacoes" value="{{ tarefa.Observações or '' }}"onchange="this.form.submit()"></td>
                 <td><input type="text" name="PDF" value="{{ tarefa.PDF or '' }}"onchange="this.form.submit()"></td>
             </tr>
         </form>
@@ -49,13 +49,13 @@
         <!-- Linha vazia para nova tarefa -->
         <tr>
             <form action="/tarefas" method="post">
-                <td><input type="checkbox" name="remover" value = ""onchange="this.form.submit()"></td>
-                <td><input type="text" name="descricao"onchange="this.form.submit()"></td>
-                <td><input type="text" name="status"onchange="this.form.submit()"></td>
-                <td><input type="date" name="data"onchange="this.form.submit()"></td>
-                <td><input type="text" name="responsavel"onchange="this.form.submit()"></td>
-                <td><input type="text" name="observacoes"onchange="this.form.submit()"></td>
-                <td><input type="text" name="PDF"onchange="this.form.submit()"></td>
+                <td><input type="checkbox" name="remover" value = "" onchange="this.form.submit()"></td>
+                <td><input type="text" name="descricao" value = "" onchange="this.form.submit()" ></td>
+                <td><input type="text" name="status"  value = "" onchange="this.form.submit()"></td>
+                <td><input type="date" name="data"  value = "" onchange="this.form.submit()"></td>
+                <td><input type="text" name="responsavel"  value = "" onchange="this.form.submit()" ></td>
+                <td><input type="text" name="observacoes"  value = "" onchange="this.form.submit()"></td>
+                <td><input type="text" name="PDF"  value = "" onchange="this.form.submit()"></td>
             </form>
         </tr>
     </tbody>

@@ -11,6 +11,7 @@ if not SUPABASE_URL or not SUPABASE_KEY:
     raise RuntimeError("SUPABASE_URL ou SUPABASE_KEY não configuradas")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 TABLE = "tarefas"
 
 

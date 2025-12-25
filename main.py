@@ -28,7 +28,7 @@ def salvar_tarefa(
     PDF: str = Form(""),
     remover: str = Form(None)
 ):
-    # 🗑️ Remover
+    # Remover
     if remover:
         database.remover_tarefas([int(remover)])
         return RedirectResponse("/", status_code=303)
