@@ -1,6 +1,8 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, UploadFile, File
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from database import atualizar_celula
+from pydantic import BaseModel
 import database
 
 
@@ -51,3 +53,28 @@ def salvar_tarefa(
         database.inserir_tarefa(dados)
 
     return RedirectResponse("/", status_code=303)
+
+
+class Atualizacao(BaseModel):
+    id: int
+    coluna: str
+    valor: str
+
+
+@app.post("/atualizar-celula")
+async def atualizar(dados: Atualizacao):
+    atualizar_celula(dados.id, dados.coluna, dados.valor)
+    return {"ok": True}
+
+
+@app.post("/upload-pdf")
+async def upload_pdf(
+    id: int = Form(...),
+    file: UploadFile = File(...)
+):
+    try:
+        database.salvar_pdf(id, file)
+        return {"ok": True}
+    except Exception as e:
+        print("ERRO UPLOAD PDF:", e)
+        return {"ok": False, "erro": str(e)}

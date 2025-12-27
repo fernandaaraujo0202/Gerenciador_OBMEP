@@ -30,36 +30,172 @@
             <th>PDF</th>
         </tr>
     </thead>
-     <tbody>
-        {% for tarefa in tarefas %}
-        <form action="/tarefas" method="post">
-            <tr>
-                <td><input type="checkbox" name="remover" value= "{{ tarefa.ID }}" onchange="this.form.submit()"></td>
-                <input type="hidden" name="id" value="{{ tarefa.ID }}"> <!-- usado apenas no backend -->
-                <td><input type="text" name="descricao" value="{{ tarefa.Descrição or '' }}" onchange="this.form.submit()" ></td>
-                <td><input type="text" name="status" value="{{ tarefa.Status or '' }}" onchange="this.form.submit()"></td>
-                <td><input type="date" name="data" value="{{ tarefa.Data or '' }}" onchange="this.form.submit()"></td>
-                <td><input type="text" name="responsavel" value="{{ tarefa.Responsável or '' }}"onchange="this.form.submit()"></td>
-                <td><input type="text" name="observacoes" value="{{ tarefa.Observações or '' }}"onchange="this.form.submit()"></td>
-                <td><input type="text" name="PDF" value="{{ tarefa.PDF or '' }}"onchange="this.form.submit()"></td>
-            </tr>
-        </form>
-        {% endfor %}
+    <tbody>
+    {% for tarefa in tarefas %}
+    <tr>
+        <td>
+            <input type="checkbox">
+        </td>
 
-        <!-- Linha vazia para nova tarefa -->
-        <tr>
-            <form action="/tarefas" method="post">
-                <td><input type="checkbox" name="remover" value = "" onchange="this.form.submit()"></td>
-                <td><input type="text" name="descricao" value = "" onchange="this.form.submit()" ></td>
-                <td><input type="text" name="status"  value = "" onchange="this.form.submit()"></td>
-                <td><input type="date" name="data"  value = "" onchange="this.form.submit()"></td>
-                <td><input type="text" name="responsavel"  value = "" onchange="this.form.submit()" ></td>
-                <td><input type="text" name="observacoes"  value = "" onchange="this.form.submit()"></td>
-                <td><input type="text" name="PDF"  value = "" onchange="this.form.submit()"></td>
-            </form>
-        </tr>
+        <td>
+            <input type="text"
+                value="{{ tarefa.Descrição or '' }}"
+                data-id="{{ tarefa.ID }}"
+                data-coluna="Descrição">
+        </td>
+
+        <td>
+            <input type="text"
+                value="{{ tarefa.Status or '' }}"
+                data-id="{{ tarefa.ID }}"
+                data-coluna="Status">
+        </td>
+
+        <td>
+            <input type="date"
+                value="{{ tarefa.Data or '' }}"
+                data-id="{{ tarefa.ID }}"
+                data-coluna="Data">
+        </td>
+
+        <td>
+            <input type="text"
+                value="{{ tarefa.Responsável or '' }}"
+                data-id="{{ tarefa.ID }}"
+                data-coluna="Responsável">
+        </td>
+
+        <td>
+            <input type="text"
+                value="{{ tarefa.Observações or '' }}"
+                data-id="{{ tarefa.ID }}"
+                data-coluna="Observações">
+        </td>
+
+        <td>
+            <input type="file"
+                data-id="{{ tarefa.ID }}" 
+                onchange = "uploadPDF(this)">
+        </td>
+    </tr>
+    {% endfor %}
     </tbody>
+
 </table>
+
+<script>
+document.addEventListener("keydown", function (e) {
+    if (e.target.tagName !== "INPUT") return;
+
+    const input = e.target;
+
+    if (e.key === "Enter") {
+        e.preventDefault();
+        salvarCelula(input);
+        moverParaDireita(input);
+    }
+});
+
+document.addEventListener("blur", function (e) {
+    if (e.target.tagName !== "INPUT") return;
+
+    salvarCelula(e.target);
+}, true);
+
+
+function salvarCelula(input) {
+    const id = input.dataset.id;
+    const coluna = input.dataset.coluna;
+    const valor = input.value;
+
+    if (!id || !coluna) return;
+
+    fetch("/atualizar-celula", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id: Number(id),
+            coluna: coluna,
+            valor: valor
+        })
+    })
+    .then(() => {
+        input.style.backgroundColor = "#d4f8d4"; 
+        setTimeout(()=>{ 
+            input.style.backgroundColor = "";},600); 
+    });
+}
+
+document.addEventListener("focus", function (e) {
+    if (e.target.tagName === "INPUT") {
+        e.target.dataset.original = e.target.value;
+    }
+}, true);
+
+document.addEventListener("blur", function (e) {
+    if (e.target.tagName !== "INPUT") return;
+     if (e.target.type === "file") return;
+
+    if (e.target.dataset.original !== e.target.value) {
+        salvarCelula(e.target);
+    }
+}, true);
+
+
+function moverParaDireita(input) {
+    const td = input.closest("td");
+    const tr = td.parentElement;
+    const tds = Array.from(tr.children);
+    const indexAtual = tds.indexOf(td);
+    const proximoTd = tds[indexAtual + 1];
+
+    if (proximoTd){
+        const proximoInput = proximoTd.querySelector("input");
+        if (proximoInput) {
+            proximoInput.focus();
+            return;
+        }
+    }
+    const proximaLinha = tr.nextElementSibling;
+    if (!proximaLinha) return;
+
+    const primeiroInput = proximaLinha.querySelector('input:not([type="checkbox"])')
+    
+    if (primeiroInput) {
+        primeiroInput.focus();
+    }
+}
+
+
+function uploadPDF(input) {
+    const id = input.dataset.id;
+    const file = input.files[0];
+    if (!file || !id) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("id", id);
+
+    fetch("/upload-pdf", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.ok) {
+            throw new Error(data.erro || "Erro desconhecido");
+        }
+        alert("PDF enviado com sucesso");
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Erro ao enviar o arquivo");
+    });
+}
+
+</script>
 
 </body>
 </html>
