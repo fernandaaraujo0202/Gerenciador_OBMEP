@@ -127,6 +127,21 @@
         </td>
     </tr>
     {% endfor %}
+
+    <tr class="linha-nova">
+        <td><input type="checkbox"></td>
+
+        <td><input type="text" data-coluna="Descrição"></td>
+        <td><input type="text" data-coluna="Status"></td>
+        <td><input type="date" data-coluna="Data"></td>
+        <td><input type="text" data-coluna="Responsável"></td>
+        <td><input type="text" data-coluna="Observações"></td>
+        <td>
+            <input type="file">
+        </td>
+    </tr>
+
+
     </tbody>
 
 </table>
@@ -253,6 +268,40 @@ function uploadPDF(input) {
         alert("Erro ao enviar PDF");
         console.error(err);
     });
+}
+
+document.addEventListener("input", function (e) {
+    const input = e.target;
+    if (input.tagName !== "INPUT") return;
+
+    const tr = input.closest("tr");
+    if (!tr || !tr.classList.contains("linha-nova")) return;
+
+    // se o usuário começou a digitar
+    if (input.value.trim() !== "") {
+        criarNovaLinha();
+        tr.classList.remove("linha-nova"); // essa virou linha normal
+    }
+});
+
+function criarNovaLinha() {
+    const tbody = document.querySelector("tbody");
+
+    const novaLinha = document.createElement("tr");
+    novaLinha.classList.add("linha-nova");
+
+    novaLinha.innerHTML = `
+        <td><input type="checkbox"></td>
+
+        <td><input type="text" data-coluna="Descrição"></td>
+        <td><input type="text" data-coluna="Status"></td>
+        <td><input type="date" data-coluna="Data"></td>
+        <td><input type="text" data-coluna="Responsável"></td>
+        <td><input type="text" data-coluna="Observações"></td>
+        <td><input type="file"></td>
+    `;
+
+    tbody.appendChild(novaLinha);
 }
 
 </script>
