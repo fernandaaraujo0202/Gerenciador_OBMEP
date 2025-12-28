@@ -73,9 +73,16 @@
         </td>
 
         <td>
+            {% if tarefa.PDF %}
+                <a href="{{ tarefa.PDF }}" target="_blank">
+                    {{ tarefa.PDF.split('/')[-1] }}
+                </a>
+                <br>
+            {% endif %}
+
             <input type="file"
-                data-id="{{ tarefa.ID }}" 
-                onchange = "uploadPDF(this)">
+                data-id="{{ tarefa.ID }}"
+                onchange="uploadPDF(this)">
         </td>
     </tr>
     {% endfor %}
@@ -168,7 +175,6 @@ function moverParaDireita(input) {
     }
 }
 
-
 function uploadPDF(input) {
     const id = input.dataset.id;
     const file = input.files[0];
@@ -182,16 +188,31 @@ function uploadPDF(input) {
         method: "POST",
         body: formData
     })
-    .then(res => res.json())
-    .then(data => {
-        if (!data.ok) {
-            throw new Error(data.erro || "Erro desconhecido");
-        }
+    .then(res => {
+        if (!res.ok) throw new Error("Falha no upload");
+        return res.json();
+    })
+    .then(() => {
+        const td = input.closest("td");
+
+        // remove link antigo (se existir)
+        const oldLink = td.querySelector("a");
+        if (oldLink) oldLink.remove();
+
+        // cria novo link
+        const link = document.createElement("a");
+        link.href = "#"; // será atualizado ao recarregar
+        link.textContent = file.name;
+        link.target = "_blank";
+
+        td.insertBefore(link, input);
+        td.insertBefore(document.createElement("br"), input);
+
         alert("PDF enviado com sucesso");
     })
     .catch(err => {
+        alert("Erro ao enviar PDF");
         console.error(err);
-        alert("Erro ao enviar o arquivo");
     });
 }
 
