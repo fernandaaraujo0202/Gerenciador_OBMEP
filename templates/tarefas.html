@@ -4,12 +4,49 @@
     <meta charset="UTF-8">
     <title>Gerenciador de Tarefas</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        td[contenteditable="true"] { background-color: #f9f9f9; }
-    </style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    /* botão falso de upload */
+    .btn-upload {
+        display: inline-block;
+        padding: 4px 10px;
+        margin-left: 10px;
+        background: #eee;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+
+    .btn-upload:hover {
+        background: #ddd;
+    }
+
+    /* link do PDF */
+    .pdf-link {
+        margin-right: 8px;
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+</style>
 </head>
 <body>
 
@@ -27,7 +64,7 @@
             <th>Data</th>
             <th>Responsável</th>
             <th>Observações</th>
-            <th>PDF</th>
+            <th>Arquivo</th>
         </tr>
     </thead>
     <tbody>
@@ -74,15 +111,19 @@
 
         <td>
             {% if tarefa.PDF %}
-                <a href="{{ tarefa.PDF }}" target="_blank">
-                    {{ tarefa.PDF.split('/')[-1] }}
+                <a href="{{ tarefa.PDF }}" target="_blank" class="pdf-link"> {{ tarefa.PDF.split('/')[-1] }}
                 </a>
-                <br>
+            {% else %}
+                <span class="pdf-link">Nenhum arquivo</span>
             {% endif %}
 
+            <label class="btn-upload">
+                Escolher arquivo
             <input type="file"
                 data-id="{{ tarefa.ID }}"
-                onchange="uploadPDF(this)">
+                onchange="uploadPDF(this)"
+                hidden>
+            </label>
         </td>
     </tr>
     {% endfor %}
@@ -195,18 +236,16 @@ function uploadPDF(input) {
     .then(() => {
         const td = input.closest("td");
 
-        // remove link antigo (se existir)
-        const oldLink = td.querySelector("a");
-        if (oldLink) oldLink.remove();
+        let link = td.querySelector(".pdf-link");
+        if (!link) {
+            link = document.createElement("a");
+            link.className = "pdf-link";
+            link.target = "_blank";
+            td.prepend(link);
+        }
 
-        // cria novo link
-        const link = document.createElement("a");
-        link.href = "#"; // será atualizado ao recarregar
         link.textContent = file.name;
-        link.target = "_blank";
-
-        td.insertBefore(link, input);
-        td.insertBefore(document.createElement("br"), input);
+        link.href = "#"; // URL real aparece ao recarregar
 
         alert("PDF enviado com sucesso");
     })
