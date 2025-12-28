@@ -55,6 +55,14 @@
 
 <h3>Tarefas</h3>
 
+<div style="margin-bottom: 10px;">
+    <button onclick="removerSelecionados()" 
+            style="cursor:pointer; background:none; border:none; font-size:18px;">
+        🗑️Remover
+    </button>
+</div>
+
+
 <table>
     <thead>
         <tr>
@@ -71,7 +79,7 @@
     {% for tarefa in tarefas %}
     <tr>
         <td>
-            <input type="checkbox">
+            <input type="checkbox" class="chk-remover" data-id="{{ tarefa.ID }}">
         </td>
 
         <td>
@@ -82,10 +90,22 @@
         </td>
 
         <td>
-            <input type="text"
-                value="{{ tarefa.Status or '' }}"
-                data-id="{{ tarefa.ID }}"
-                data-coluna="Status">
+            <select 
+                data-id="{{ tarefa.ID }}" 
+                data-coluna="Status"
+                onchange="salvarSelect(this)">
+        
+                <option value="">-- selecione --</option>
+                <option value="A fazer" {% if tarefa.Status == "A fazer" %}selected{% endif %}>
+                    A fazer
+                </option>
+                <option value="Em andamento" {% if tarefa.Status == "Em andamento" %}selected{% endif %}>
+                    Em andamento
+                </option>
+                <option value="Concluído" {% if tarefa.Status == "Concluído" %}selected{% endif %}>
+                    Concluído
+                </option>
+            </select>
         </td>
 
         <td>
@@ -132,7 +152,15 @@
         <td><input type="checkbox"></td>
 
         <td><input type="text" data-coluna="Descrição"></td>
-        <td><input type="text" data-coluna="Status"></td>
+        <td>
+            <select data-coluna="Status">
+                <option value="">-- selecione --</option>
+                <option value="A fazer">A fazer</option>
+                <option value="Em andamento">Em andamento</option>
+                <option value="Concluído">Concluído</option>
+            </select>
+        </td>
+
         <td><input type="date" data-coluna="Data"></td>
         <td><input type="text" data-coluna="Responsável"></td>
         <td><input type="text" data-coluna="Observações"></td>
@@ -315,6 +343,64 @@ function criarNovaLinha() {
     `;
 
     tbody.appendChild(novaLinha);
+}
+
+
+function removerSelecionados() {
+    const checks = document.querySelectorAll(".chk-remover:checked");
+
+    if (checks.length === 0) {
+        alert("Selecione ao menos uma linha");
+        return;
+    }
+
+    if (!confirm("Deseja apagar as linhas selecionadas?")) {
+        return;
+    }
+
+    const ids = Array.from(checks).map(chk => Number(chk.dataset.id));
+
+    fetch("/remover-tarefas", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(ids)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Erro ao remover");
+        location.reload();
+    })
+    .catch(err => {
+        alert("Erro ao remover tarefas");
+        console.error(err);
+    });
+}
+
+function salvarSelect(select) {
+    const id = select.dataset.id;
+    const coluna = select.dataset.coluna;
+    const valor = select.value;
+
+    if (!id || !coluna) return;
+
+    fetch("/atualizar-celula", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id: Number(id),
+            coluna: coluna,
+            valor: valor
+        })
+    })
+    .then(() => {
+        select.style.backgroundColor = "#d4f8d4";
+        setTimeout(() => {
+            select.style.backgroundColor = "";
+        }, 600);
+    });
 }
 
 </script>

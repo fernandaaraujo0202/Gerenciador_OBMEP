@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from database import atualizar_celula
 from pydantic import BaseModel
 import database
-
+from typing import List
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -91,3 +91,9 @@ def criar_tarefa():
         "PDF": ""
     })
     return {"id": tarefa["ID"]}
+
+
+@app.post("/remover-tarefas")
+async def remover_tarefas(ids: list[int]):
+    database.remover_tarefas(ids)
+    return {"ok": True}
