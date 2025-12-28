@@ -23,7 +23,8 @@ def listar_tarefas():
 
 
 def inserir_tarefa(dados):
-    supabase.table(TABLE).insert(dados).execute()
+    res = supabase.table(TABLE).insert(dados).execute()
+    return res.data[0]
 
 
 def atualizar_tarefa(id, dados):

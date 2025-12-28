@@ -278,10 +278,23 @@ document.addEventListener("input", function (e) {
     if (!tr || !tr.classList.contains("linha-nova")) return;
 
     // se o usuário começou a digitar
-    if (input.value.trim() !== "") {
-        criarNovaLinha();
-        tr.classList.remove("linha-nova"); // essa virou linha normal
-    }
+    if (input.value.trim() !== "" && !tr.dataset.criada) {
+    tr.dataset.criada = "true";
+
+    fetch("/criar-tarefa", { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+            const id = data.id;
+
+            // aplica o ID em TODOS os inputs da linha
+            tr.querySelectorAll("input").forEach(inp => {
+                inp.dataset.id = id;
+            });
+
+            tr.classList.remove("linha-nova");
+            criarNovaLinha(); // cria a próxima vazia
+        });
+}
 });
 
 function criarNovaLinha() {

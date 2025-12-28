@@ -78,3 +78,16 @@ async def upload_pdf(
     except Exception as e:
         print("ERRO UPLOAD PDF:", e)
         return {"ok": False, "erro": str(e)}
+
+
+@app.post("/criar-tarefa")
+def criar_tarefa():
+    tarefa = database.inserir_tarefa({
+        "Descrição": "",
+        "Status": "",
+        "Data": None,
+        "Responsável": "",
+        "Observações": "",
+        "PDF": ""
+    })
+    return {"id": tarefa["ID"]}
