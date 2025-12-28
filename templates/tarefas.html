@@ -71,8 +71,7 @@
         data-id="{{ tarefa.ID }}" data-coluna="Descrição"></td>
 
     <td>
-        <select data-id="{{ tarefa.ID }}" data-coluna="Status"
-                onchange="salvarSelect(this)">
+        <select data-id="{{ tarefa.ID }}" data-coluna="Status">
             <option value="">-- selecione --</option>
             <option value="A fazer" {% if tarefa.Status=="A fazer" %}selected{% endif %}>A fazer</option>
             <option value="Em andamento" {% if tarefa.Status=="Em andamento" %}selected{% endif %}>Em andamento</option>
@@ -116,18 +115,16 @@
     <td>
         <select data-coluna="Status">
             <option value="">-- selecione --</option>
-            <option value="A fazer">A fazer</option>
-            <option value="Em andamento">Em andamento</option>
-            <option value="Concluído">Concluído</option>
+            <option>A fazer</option>
+            <option>Em andamento</option>
+            <option>Concluído</option>
         </select>
     </td>
 
     <td><input type="date" data-coluna="Data"></td>
     <td><input type="text" data-coluna="Responsável"></td>
     <td><input type="text" data-coluna="Observações"></td>
-    <td>
-        <input type="file" onchange="uploadPDF(this)">
-    </td>
+    <td><input type="file" onchange="uploadPDF(this)"></td>
 </tr>
 
 </tbody>
@@ -150,48 +147,45 @@ document.addEventListener("change", function (e) {
             .then(data => {
                 const id = data.id;
 
-                // aplica o ID
-                tr.querySelectorAll("input, select").forEach(c => c.dataset.id = id);
+                tr.querySelectorAll("input, select")
+                  .forEach(c => c.dataset.id = id);
+
                 tr.classList.remove("linha-nova");
 
-                // 🔥 SALVA O CAMPO QUE O USUÁRIO JÁ PREENCHIU
-                if (el.dataset.coluna) {
-                    if (el.tagName === "SELECT") {
-                        salvarSelect(el);
-                    } else {
-                        salvarCelula(el);
-                    }
-                }
-
+                salvarCampo(el);
                 criarNovaLinha();
             });
     }
 });
 
-/* ================== SALVAR CÉLULAS ================== */
+/* ================== SALVAR INPUT E SELECT ================== */
 document.addEventListener("blur", e => {
-    if (e.target.tagName === "INPUT" && e.target.dataset.id && e.target.dataset.coluna) {
-        salvarCelula(e.target);
+    if (["INPUT", "SELECT"].includes(e.target.tagName)) {
+        salvarCampo(e.target);
     }
 }, true);
 
-function salvarCelula(input) {
+document.addEventListener("change", e => {
+    if (e.target.tagName === "SELECT") {
+        salvarCampo(e.target);
+    }
+});
+
+function salvarCampo(el) {
+    if (!el.dataset.id || !el.dataset.coluna) return;
+
     fetch("/atualizar-celula", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            id: Number(input.dataset.id),
-            coluna: input.dataset.coluna,
-            valor: input.value
+            id: Number(el.dataset.id),
+            coluna: el.dataset.coluna,
+            valor: el.value
         })
     }).then(() => {
-        input.style.background = "#d4f8d4";
-        setTimeout(() => input.style.background = "", 600);
+        el.style.background = "#d4f8d4";
+        setTimeout(() => el.style.background = "", 600);
     });
-}
-
-function salvarSelect(sel) {
-    salvarCelula(sel);
 }
 
 /* ================== UPLOAD PDF ================== */
