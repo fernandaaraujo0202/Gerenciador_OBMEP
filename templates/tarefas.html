@@ -3,406 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <title>Gerenciador de Tarefas</title>
+
     <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
+        body { font-family: Arial, sans-serif; margin: 20px; }
 
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        margin-top: 20px;
-    }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
 
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-        vertical-align: middle;
-    }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            vertical-align: middle;
+        }
 
-    th {
-        background-color: #f2f2f2;
-    }
+        th { background-color: #f2f2f2; }
 
-    /* botão falso de upload */
-    .btn-upload {
-        display: inline-block;
-        padding: 4px 10px;
-        margin-left: 10px;
-        background: #eee;
-        border: 1px solid #ccc;
-        cursor: pointer;
-        font-size: 14px;
-        border-radius: 4px;
-    }
+        .btn-upload {
+            display: inline-block;
+            padding: 4px 10px;
+            margin-left: 8px;
+            background: #eee;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            border-radius: 4px;
+        }
 
-    .btn-upload:hover {
-        background: #ddd;
-    }
-
-    /* link do PDF */
-    .pdf-link {
-        margin-right: 8px;
-        color: blue;
-        text-decoration: underline;
-        cursor: pointer;
-    }
-</style>
+        .pdf-link {
+            margin-right: 8px;
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
 </head>
+
 <body>
 
 <h2>Tabela de tarefas</h2>
 <a href="/logout">Sair</a>
 
-<h3>Tarefas</h3>
-
-<div style="margin-bottom: 10px;">
-    <button onclick="removerSelecionados()" 
-            style="cursor:pointer; background:none; border:none; font-size:18px;">
-        🗑️Remover
-    </button>
+<div style="margin:10px 0">
+    <button onclick="removerSelecionados()">🗑️ Remover</button>
 </div>
 
-
 <table>
-    <thead>
-        <tr>
-            <th>Selecionar</th>
-            <th>Descrição</th>
-            <th>Status</th>
-            <th>Data</th>
-            <th>Responsável</th>
-            <th>Observações</th>
-            <th>PDF</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for tarefa in tarefas %}
-    <tr>
-        <td>
-            <input type="checkbox" class="chk-remover" data-id="{{ tarefa.ID }}">
-        </td>
+<thead>
+<tr>
+    <th>Selecionar</th>
+    <th>Descrição</th>
+    <th>Status</th>
+    <th>Data</th>
+    <th>Responsável</th>
+    <th>Observações</th>
+    <th>Arquivo</th>
+</tr>
+</thead>
 
-        <td>
-            <input type="text"
-                value="{{ tarefa.Descrição or '' }}"
-                data-id="{{ tarefa.ID }}"
-                data-coluna="Descrição">
-        </td>
+<tbody>
 
-        <td>
-            <select 
-                data-id="{{ tarefa.ID }}" 
-                data-coluna="Status"
+{% for tarefa in tarefas %}
+<tr>
+    <td><input type="checkbox" class="chk-remover" data-id="{{ tarefa.ID }}"></td>
+
+    <td><input type="text" value="{{ tarefa.Descrição or '' }}"
+        data-id="{{ tarefa.ID }}" data-coluna="Descrição"></td>
+
+    <td>
+        <select data-id="{{ tarefa.ID }}" data-coluna="Status"
                 onchange="salvarSelect(this)">
-        
-                <option value="">-- selecione --</option>
-                <option value="A fazer" {% if tarefa.Status == "A fazer" %}selected{% endif %}>
-                    A fazer
-                </option>
-                <option value="Em andamento" {% if tarefa.Status == "Em andamento" %}selected{% endif %}>
-                    Em andamento
-                </option>
-                <option value="Concluído" {% if tarefa.Status == "Concluído" %}selected{% endif %}>
-                    Concluído
-                </option>
-            </select>
-        </td>
+            <option value="">-- selecione --</option>
+            <option value="A fazer" {% if tarefa.Status=="A fazer" %}selected{% endif %}>A fazer</option>
+            <option value="Em andamento" {% if tarefa.Status=="Em andamento" %}selected{% endif %}>Em andamento</option>
+            <option value="Concluído" {% if tarefa.Status=="Concluído" %}selected{% endif %}>Concluído</option>
+        </select>
+    </td>
 
-        <td>
-            <input type="date"
-                value="{{ tarefa.Data or '' }}"
-                data-id="{{ tarefa.ID }}"
-                data-coluna="Data">
-        </td>
+    <td><input type="date" value="{{ tarefa.Data or '' }}"
+        data-id="{{ tarefa.ID }}" data-coluna="Data"></td>
 
-        <td>
-            <input type="text"
-                value="{{ tarefa.Responsável or '' }}"
-                data-id="{{ tarefa.ID }}"
-                data-coluna="Responsável">
-        </td>
+    <td><input type="text" value="{{ tarefa.Responsável or '' }}"
+        data-id="{{ tarefa.ID }}" data-coluna="Responsável"></td>
 
-        <td>
-            <input type="text"
-                value="{{ tarefa.Observações or '' }}"
-                data-id="{{ tarefa.ID }}"
-                data-coluna="Observações">
-        </td>
+    <td><input type="text" value="{{ tarefa.Observações or '' }}"
+        data-id="{{ tarefa.ID }}" data-coluna="Observações"></td>
 
-        <td>
-            {% if tarefa.PDF %}
-                <a href="{{ tarefa.PDF }}" target="_blank" class="pdf-link"> {{ tarefa.PDF.split('/')[-1] }}
-                </a>
-            {% else %}
-                <span class="pdf-link">Nenhum arquivo</span>
-            {% endif %}
+    <td>
+        {% if tarefa.PDF %}
+            <a class="pdf-link" target="_blank"
+               href="{{ tarefa.PDF }}">{{ tarefa.PDF.split('/')[-1] }}</a>
+        {% else %}
+            <span class="pdf-link">Nenhum arquivo</span>
+        {% endif %}
 
-            <label class="btn-upload">
-                Escolher arquivo
-            <input type="file"
-                data-id="{{ tarefa.ID }}"
-                onchange="uploadPDF(this)"
-                hidden>
-            </label>
-        </td>
-    </tr>
-    {% endfor %}
+        <label class="btn-upload">
+            Escolher arquivo
+            <input type="file" hidden
+                   data-id="{{ tarefa.ID }}"
+                   onchange="uploadPDF(this)">
+        </label>
+    </td>
+</tr>
+{% endfor %}
 
-    <tr class="linha-nova">
-        <td><input type="checkbox"></td>
+<!-- LINHA NOVA -->
+<tr class="linha-nova">
+    <td><input type="checkbox"></td>
 
-        <td><input type="text" data-coluna="Descrição"></td>
-        <td>
-            <select data-coluna="Status">
-                <option value="">-- selecione --</option>
-                <option value="A fazer">A fazer</option>
-                <option value="Em andamento">Em andamento</option>
-                <option value="Concluído">Concluído</option>
-            </select>
-        </td>
+    <td><input type="text" data-coluna="Descrição"></td>
 
-        <td><input type="date" data-coluna="Data"></td>
-        <td><input type="text" data-coluna="Responsável"></td>
-        <td><input type="text" data-coluna="Observações"></td>
-        <td>
-            <input type="file">
-        </td>
-    </tr>
+    <td>
+        <select data-coluna="Status">
+            <option value="">-- selecione --</option>
+            <option value="A fazer">A fazer</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Concluído">Concluído</option>
+        </select>
+    </td>
 
+    <td><input type="date" data-coluna="Data"></td>
+    <td><input type="text" data-coluna="Responsável"></td>
+    <td><input type="text" data-coluna="Observações"></td>
+    <td>
+        <input type="file" onchange="uploadPDF(this)">
+    </td>
+</tr>
 
-    </tbody>
-
+</tbody>
 </table>
 
 <script>
-document.addEventListener("keydown", function (e) {
-    if (e.target.tagName !== "INPUT") return;
+/* ================== CRIAÇÃO AUTOMÁTICA ================== */
+document.addEventListener("change", function (e) {
+    const el = e.target;
+    if (!["INPUT", "SELECT"].includes(el.tagName)) return;
 
-    const input = e.target;
+    const tr = el.closest("tr");
+    if (!tr || !tr.classList.contains("linha-nova")) return;
 
-    if (e.key === "Enter") {
-        e.preventDefault();
-        salvarCelula(input);
-        moverParaDireita(input);
+    if (el.value && !tr.dataset.criada) {
+        tr.dataset.criada = "true";
+
+        fetch("/criar-tarefa", { method: "POST" })
+            .then(r => r.json())
+            .then(data => {
+                const id = data.id;
+
+                // aplica o ID
+                tr.querySelectorAll("input, select").forEach(c => c.dataset.id = id);
+                tr.classList.remove("linha-nova");
+
+                // 🔥 SALVA O CAMPO QUE O USUÁRIO JÁ PREENCHIU
+                if (el.dataset.coluna) {
+                    if (el.tagName === "SELECT") {
+                        salvarSelect(el);
+                    } else {
+                        salvarCelula(el);
+                    }
+                }
+
+                criarNovaLinha();
+            });
     }
 });
 
-document.addEventListener("blur", function (e) {
-    if (e.target.tagName !== "INPUT") return;
-
-    salvarCelula(e.target);
-}, true);
-
-
-function salvarCelula(input) {
-    const id = input.dataset.id;
-    const coluna = input.dataset.coluna;
-    const valor = input.value;
-
-    if (!id || !coluna) return;
-
-    fetch("/atualizar-celula", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            id: Number(id),
-            coluna: coluna,
-            valor: valor
-        })
-    })
-    .then(() => {
-        input.style.backgroundColor = "#d4f8d4"; 
-        setTimeout(()=>{ 
-            input.style.backgroundColor = "";},600); 
-    });
-}
-
-document.addEventListener("focus", function (e) {
-    if (e.target.tagName === "INPUT") {
-        e.target.dataset.original = e.target.value;
-    }
-}, true);
-
-document.addEventListener("blur", function (e) {
-    if (e.target.tagName !== "INPUT") return;
-     if (e.target.type === "file") return;
-
-    if (e.target.dataset.original !== e.target.value) {
+/* ================== SALVAR CÉLULAS ================== */
+document.addEventListener("blur", e => {
+    if (e.target.tagName === "INPUT" && e.target.dataset.id && e.target.dataset.coluna) {
         salvarCelula(e.target);
     }
 }, true);
 
-
-function moverParaDireita(input) {
-    const td = input.closest("td");
-    const tr = td.parentElement;
-    const tds = Array.from(tr.children);
-    const indexAtual = tds.indexOf(td);
-    const proximoTd = tds[indexAtual + 1];
-
-    if (proximoTd){
-        const proximoInput = proximoTd.querySelector("input");
-        if (proximoInput) {
-            proximoInput.focus();
-            return;
-        }
-    }
-    const proximaLinha = tr.nextElementSibling;
-    if (!proximaLinha) return;
-
-    const primeiroInput = proximaLinha.querySelector('input:not([type="checkbox"])')
-    
-    if (primeiroInput) {
-        primeiroInput.focus();
-    }
-}
-
-function uploadPDF(input) {
-    const id = input.dataset.id;
-    const file = input.files[0];
-    if (!file || !id) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("id", id);
-
-    fetch("/upload-pdf", {
+function salvarCelula(input) {
+    fetch("/atualizar-celula", {
         method: "POST",
-        body: formData
-    })
-    .then(res => {
-        if (!res.ok) throw new Error("Falha no upload");
-        return res.json();
-    })
-    .then(() => {
-        const td = input.closest("td");
-
-        let link = td.querySelector(".pdf-link");
-        if (!link) {
-            link = document.createElement("a");
-            link.className = "pdf-link";
-            link.target = "_blank";
-            td.prepend(link);
-        }
-
-        link.textContent = file.name;
-        link.href = "#"; // URL real aparece ao recarregar
-
-        alert("PDF enviado com sucesso");
-    })
-    .catch(err => {
-        alert("Erro ao enviar PDF");
-        console.error(err);
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            id: Number(input.dataset.id),
+            coluna: input.dataset.coluna,
+            valor: input.value
+        })
+    }).then(() => {
+        input.style.background = "#d4f8d4";
+        setTimeout(() => input.style.background = "", 600);
     });
 }
 
-document.addEventListener("input", function (e) {
-    const input = e.target;
-    if (input.tagName !== "INPUT") return;
-
-    const tr = input.closest("tr");
-    if (!tr || !tr.classList.contains("linha-nova")) return;
-
-    // se o usuário começou a digitar
-    if (input.value.trim() !== "" && !tr.dataset.criada) {
-    tr.dataset.criada = "true";
-
-    fetch("/criar-tarefa", { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-            const id = data.id;
-
-            // aplica o ID em TODOS os inputs da linha
-            tr.querySelectorAll("input").forEach(inp => {
-                inp.dataset.id = id;
-            });
-
-            tr.classList.remove("linha-nova");
-            criarNovaLinha(); // cria a próxima vazia
-        });
+function salvarSelect(sel) {
+    salvarCelula(sel);
 }
-});
 
+/* ================== UPLOAD PDF ================== */
+function uploadPDF(input) {
+    const id = input.dataset.id;
+    if (!id || !input.files[0]) return;
+
+    const fd = new FormData();
+    fd.append("id", id);
+    fd.append("file", input.files[0]);
+
+    fetch("/upload-pdf", { method:"POST", body:fd })
+        .then(() => location.reload());
+}
+
+/* ================== REMOVER ================== */
+function removerSelecionados() {
+    const ids = [...document.querySelectorAll(".chk-remover:checked")]
+        .map(c => Number(c.dataset.id));
+
+    if (!ids.length) return alert("Selecione uma linha");
+
+    fetch("/remover-tarefas", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(ids)
+    }).then(() => location.reload());
+}
+
+/* ================== NOVA LINHA ================== */
 function criarNovaLinha() {
-    const tbody = document.querySelector("tbody");
-
-    const novaLinha = document.createElement("tr");
-    novaLinha.classList.add("linha-nova");
-
-    novaLinha.innerHTML = `
+    const tr = document.createElement("tr");
+    tr.className = "linha-nova";
+    tr.innerHTML = `
         <td><input type="checkbox"></td>
-
         <td><input type="text" data-coluna="Descrição"></td>
-        <td><input type="text" data-coluna="Status"></td>
+        <td>
+            <select data-coluna="Status">
+                <option value="">-- selecione --</option>
+                <option>A fazer</option>
+                <option>Em andamento</option>
+                <option>Concluído</option>
+            </select>
+        </td>
         <td><input type="date" data-coluna="Data"></td>
         <td><input type="text" data-coluna="Responsável"></td>
         <td><input type="text" data-coluna="Observações"></td>
-        <td><input type="file"></td>
+        <td><input type="file" onchange="uploadPDF(this)"></td>
     `;
-
-    tbody.appendChild(novaLinha);
+    document.querySelector("tbody").appendChild(tr);
 }
-
-
-function removerSelecionados() {
-    const checks = document.querySelectorAll(".chk-remover:checked");
-
-    if (checks.length === 0) {
-        alert("Selecione ao menos uma linha");
-        return;
-    }
-
-    if (!confirm("Deseja apagar as linhas selecionadas?")) {
-        return;
-    }
-
-    const ids = Array.from(checks).map(chk => Number(chk.dataset.id));
-
-    fetch("/remover-tarefas", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(ids)
-    })
-    .then(res => {
-        if (!res.ok) throw new Error("Erro ao remover");
-        location.reload();
-    })
-    .catch(err => {
-        alert("Erro ao remover tarefas");
-        console.error(err);
-    });
-}
-
-function salvarSelect(select) {
-    const id = select.dataset.id;
-    const coluna = select.dataset.coluna;
-    const valor = select.value;
-
-    if (!id || !coluna) return;
-
-    fetch("/atualizar-celula", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            id: Number(id),
-            coluna: coluna,
-            valor: valor
-        })
-    })
-    .then(() => {
-        select.style.backgroundColor = "#d4f8d4";
-        setTimeout(() => {
-            select.style.backgroundColor = "";
-        }, 600);
-    });
-}
-
 </script>
 
 </body>
