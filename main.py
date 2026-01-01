@@ -7,6 +7,7 @@ from pydantic import BaseModel
 import database
 from typing import List
 from starlette.middleware.sessions import SessionMiddleware
+from pydantic import BaseModel
 
 
 app = FastAPI()
@@ -139,3 +140,35 @@ def login(request: Request, usuario: str = Form(...)):
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse("/login", status_code=303)
+
+
+# ----------- AGENDA -----------
+
+@app.get("/agenda")
+def agenda_page(request: Request):
+    usuario = request.session.get("usuario")
+    if not usuario:
+        return RedirectResponse("/login", status_code=303)
+
+    return templates.TemplateResponse("agenda.html", {
+        "request": request,
+        "usuario": usuario
+    })
+
+
+class Evento(BaseModel):
+    titulo: str
+    data: str
+
+
+@app.get("/eventos")
+def listar_eventos(request: Request):
+    usuario = request.session.get("usuario")
+    return database.listar_eventos(usuario)
+
+
+@app.post("/eventos")
+def criar_evento(evento: Evento, request: Request):
+    usuario = request.session.get("usuario")
+    database.criar_evento(evento.titulo, evento.data, usuario)
+    return {"ok": True}

@@ -79,3 +79,25 @@ def salvar_pdf(tarefa_id, upload_file):
         .update({"PDF": url}) \
         .eq("ID", tarefa_id) \
         .execute()
+
+
+# -------- agenda ------
+
+def listar_eventos(usuario):
+    res = supabase.table("eventos").select(
+        "*").eq("usuario", usuario).execute()
+    return [
+        {
+            "title": e["titulo"],
+            "start": e["data"]
+        }
+        for e in res.data
+    ]
+
+
+def criar_evento(titulo, data, usuario):
+    supabase.table("eventos").insert({
+        "titulo": titulo,
+        "data": data,
+        "usuario": usuario
+    }).execute()
