@@ -53,7 +53,41 @@
 <tr>
     <th>Selecionar</th>
     <th>Descrição</th>
-    <th>Status</th>
+    
+    <th style="position: relative;">
+        <span style="display:flex; align-items:center; justify-content:center; gap:6px;">
+            Status
+
+            <span onclick="toggleFiltroStatus()"
+                style="cursor:pointer; display:flex; align-items:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="22 3 2 3 10 12 10 19 14 21 14 12 22 3"></polygon>
+                </svg>
+            </span>
+        </span>
+
+        <select id="filtro-status"
+                onchange="filtrarStatus(); fecharFiltroStatus()"
+                style="
+                    display:none;
+                    position:absolute;
+                    top:100%;
+                    left:0;
+                    z-index:10;
+                    width:140px;
+                    margin-top:4px;
+                ">
+            <option value="">Todos</option>
+            <option value="A fazer">A fazer</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Concluído">Concluído</option>
+        </select>
+    </th>
+
+
+
     <th>Data</th>
     <th>Responsável</th>
     <th>Observações</th>
@@ -129,115 +163,6 @@
 
 </tbody>
 </table>
-
-<script>
-/* ================== CRIAÇÃO AUTOMÁTICA ================== */
-document.addEventListener("change", function (e) {
-    const el = e.target;
-    if (!["INPUT", "SELECT"].includes(el.tagName)) return;
-
-    const tr = el.closest("tr");
-    if (!tr || !tr.classList.contains("linha-nova")) return;
-
-    if (el.value && !tr.dataset.criada) {
-        tr.dataset.criada = "true";
-
-        fetch("/criar-tarefa", { method: "POST" })
-            .then(r => r.json())
-            .then(data => {
-                const id = data.id;
-
-                tr.querySelectorAll("input, select")
-                  .forEach(c => c.dataset.id = id);
-
-                tr.classList.remove("linha-nova");
-
-                salvarCampo(el);
-                criarNovaLinha();
-            });
-    }
-});
-
-/* ================== SALVAR INPUT E SELECT ================== */
-document.addEventListener("blur", e => {
-    if (["INPUT", "SELECT"].includes(e.target.tagName)) {
-        salvarCampo(e.target);
-    }
-}, true);
-
-document.addEventListener("change", e => {
-    if (e.target.tagName === "SELECT") {
-        salvarCampo(e.target);
-    }
-});
-
-function salvarCampo(el) {
-    if (!el.dataset.id || !el.dataset.coluna) return;
-
-    fetch("/atualizar-celula", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            id: Number(el.dataset.id),
-            coluna: el.dataset.coluna,
-            valor: el.value
-        })
-    }).then(() => {
-        el.style.background = "#d4f8d4";
-        setTimeout(() => el.style.background = "", 600);
-    });
-}
-
-/* ================== UPLOAD PDF ================== */
-function uploadPDF(input) {
-    const id = input.dataset.id;
-    if (!id || !input.files[0]) return;
-
-    const fd = new FormData();
-    fd.append("id", id);
-    fd.append("file", input.files[0]);
-
-    fetch("/upload-pdf", { method:"POST", body:fd })
-        .then(() => location.reload());
-}
-
-/* ================== REMOVER ================== */
-function removerSelecionados() {
-    const ids = [...document.querySelectorAll(".chk-remover:checked")]
-        .map(c => Number(c.dataset.id));
-
-    if (!ids.length) return alert("Selecione uma linha");
-
-    fetch("/remover-tarefas", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(ids)
-    }).then(() => location.reload());
-}
-
-/* ================== NOVA LINHA ================== */
-function criarNovaLinha() {
-    const tr = document.createElement("tr");
-    tr.className = "linha-nova";
-    tr.innerHTML = `
-        <td><input type="checkbox"></td>
-        <td><input type="text" data-coluna="Descrição"></td>
-        <td>
-            <select data-coluna="Status">
-                <option value="">-- selecione --</option>
-                <option>A fazer</option>
-                <option>Em andamento</option>
-                <option>Concluído</option>
-            </select>
-        </td>
-        <td><input type="date" data-coluna="Data"></td>
-        <td><input type="text" data-coluna="Responsável"></td>
-        <td><input type="text" data-coluna="Observações"></td>
-        <td><input type="file" onchange="uploadPDF(this)"></td>
-    `;
-    document.querySelector("tbody").appendChild(tr);
-}
-</script>
-
+<script src="/static/js/tarefas.js"></script>
 </body>
 </html>

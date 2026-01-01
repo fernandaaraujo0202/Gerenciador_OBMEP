@@ -1,3 +1,4 @@
+from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Request, Form, UploadFile, File
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -5,18 +6,35 @@ from database import atualizar_celula
 from pydantic import BaseModel
 import database
 from typing import List
+from starlette.middleware.sessions import SessionMiddleware
+
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="uma-chave-bem-secreta-aqui"
+)
 
 
 @app.get("/")
 def home(request: Request):
+    usuario = request.session.get("usuario")
+
+    if not usuario:
+        return RedirectResponse("/login", status_code=303)
+
     tarefas = database.listar_tarefas()
-    return templates.TemplateResponse(
-        "tarefas.html",
-        {"request": request, "tarefas": tarefas}
-    )
+
+    return templates.TemplateResponse("tarefas.html", {
+        "request": request,
+        "usuario": usuario,
+        "tarefas": tarefas
+    })
+
+# ------------- TAREFAS ----------------
 
 
 @app.post("/tarefas")
@@ -97,3 +115,27 @@ def criar_tarefa():
 async def remover_tarefas(ids: list[int]):
     database.remover_tarefas(ids)
     return {"ok": True}
+
+
+# ---------------- LOGIN ----------------
+@app.get("/login")
+def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.post("/login")
+def login(request: Request, usuario: str = Form(...)):
+
+    USUARIO_VALIDO = "2026"  # <-- troque pelo nome que você quiser
+
+    if usuario != USUARIO_VALIDO:
+        return RedirectResponse("/login", status_code=303)
+
+    request.session["usuario"] = usuario
+    return RedirectResponse("/", status_code=303)
+
+
+@app.get("/logout")
+def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse("/login", status_code=303)
