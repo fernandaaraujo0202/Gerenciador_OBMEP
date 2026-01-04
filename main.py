@@ -17,7 +17,7 @@ templates = Jinja2Templates(directory="templates")
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key="uma-chave-bem-secreta-aqui"
+    secret_key="uma-chave-bem-secreta-aqui",
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +31,7 @@ def home(request: Request):
 
     if not usuario:
         return RedirectResponse("/login", status_code=303)
-
+    request.session["usuario"] = usuario
     tarefas = database.listar_tarefas()
 
     return templates.TemplateResponse("tarefas.html", {

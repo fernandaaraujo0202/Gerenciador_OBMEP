@@ -8,6 +8,47 @@
 <style>
 body {
     font-family:Arial, sans-serif;
+    padding-top: 100px;
+    margin: 0;
+
+    .top-bar {
+        position: fixed;
+        top: 0;
+        left: 0px;
+        right: 0;
+        height: 60px;
+        background: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        z-index: 1000;
+        margin-top: 23px;
+    }
+
+    .menu-botoes {       
+        display: flex;
+        gap: 10px;
+        position: fixed;
+        right: 20px;
+    }
+
+    .menu-botoes a,
+    .menu-botoes button {
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        background: #f2f2f2;
+        cursor: pointer;
+        border-radius: 4px;
+        text-decoration: none;
+        color: black;
+        font-size: 14px;
+    }
+
+    .menu-botoes a:hover,
+    .menu-botoes button:hover {
+        background: #e0e0e0;
+    }
 }
 
 #calendario{
@@ -15,7 +56,7 @@ body {
     grid-template-columns: repeat(7, 1fr);
     gap: 5px;
     width:800px;
-    height: 500px;
+    height: 400px;
 }
 
 #semana {
@@ -68,7 +109,7 @@ body {
 
 #layout {
     display: flex;
-    gap: 30px;
+    gap: 20px;
 }
 
 #calendario-container {
@@ -153,12 +194,22 @@ body {
 
 <body>
 
+<div class="top-bar">
+
+    <div class="menu-botoes">
+        <a href="/calendario">Calendário</a>
+        <a href="/">Tarefas</a>
+        <button type="button">Notas</button>
+        <a href="/logout">Sair</a>
+    </div>
+</div>
+
 <div id="layout">
     <div id="calendario-container">
 
 <div id="topo">
     <button onclick="mesAnterior()">‹</button>
-    <h2 id="mes-ano"></h2>
+    <h2 id="mes-ano"> </h2>
     <button onclick="proximoMes()">›</button>
 </div>
 

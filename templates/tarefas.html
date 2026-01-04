@@ -36,13 +36,50 @@
             color: blue;
             text-decoration: underline;
         }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .menu-botoes {
+            display: flex;
+            gap: 10px;
+        }
+
+        .menu-botoes a,
+        .menu-botoes button {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background: #f2f2f2;
+            cursor: pointer;
+            border-radius: 4px;
+            text-decoration: none;
+            color: black;
+            font-size: 14px;
+        }
+
+        .menu-botoes a:hover,
+        .menu-botoes button:hover {
+            background: #e0e0e0;
+        }
     </style>
 </head>
 
 <body>
 
-<h2>Tabela de tarefas</h2>
-<a href="/logout">Sair</a>
+<div class="top-bar">
+    <h2>Tabela de tarefas</h2>
+
+    <div class="menu-botoes">
+        <a href="/calendario">Calendário</a>
+        <a href="/">Tarefas</a>
+        <button type="button">Notas</button>
+        <a href="/logout">Sair</a>
+    </div>
+</div>
+
 
 <div style="margin:10px 0">
     <button onclick="removerSelecionados()">🗑️ Remover</button>
