@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<title>Calendário</title>
+<style>
+body {
+    font-family:Arial, sans-serif;
+}
+
+#calendario{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    width:800px;
+    height: 500px;
+}
+.dia{
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+</style>
+</head>
+
+<body>
+
+<h2 id="mes-ano"></h2>
+
+<div id="calendario"></div>
+
+<script src="/static/calendario.js"></script>
+</body>
+</html>
