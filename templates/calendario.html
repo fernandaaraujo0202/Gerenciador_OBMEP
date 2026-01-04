@@ -17,17 +17,75 @@ body {
     width:800px;
     height: 500px;
 }
+
+#semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 800px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#topo {
+    display: flex;
+    align-items: center;
+    gap: 310px;
+}
+
+#topo button {
+    all: unset;        /* zera todo o estilo padrão do navegador */
+    cursor: pointer;
+    font-size: 50px;
+    color: black;
+}
+
+#topo button:hover,
+#topo button:active,
+#topo button:focus {
+    color: black;
+}
+
 .dia{
     border: 1px solid #ccc;
     padding: 10px;
     text-align: left;
 }
+.hoje{
+    background: #62e9b7;
+    color:white;
+    font-weight: bold;
+}
+
+.fim-semana {
+    color: #dc2626;   /* vermelho elegante */
+    font-weight: 500;
+}
+
+
+
 </style>
 </head>
 
 <body>
+    
 
-<h2 id="mes-ano"></h2>
+<div id="topo">
+    <button onclick="mesAnterior()">‹</button>
+    <h2 id="mes-ano"></h2>
+    <button onclick="proximoMes()">›</button>
+</div>
+
+
+<div id="semana">
+    <div>Dom</div>
+    <div>Seg</div>
+    <div>Ter</div>
+    <div>Qua</div>
+    <div>Qui</div>
+    <div>Sex</div>
+    <div>Sáb</div>
+</div>
 
 <div id="calendario"></div>
 
