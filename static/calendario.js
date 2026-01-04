@@ -46,6 +46,28 @@ function criarCalendario(){
         div.classList.add("hoje");
     }
 
+     div.addEventListener("click", () => {
+        // remove seleção anterior
+        document
+            .querySelectorAll(".dia")
+            .forEach(d => d.classList.remove("selecionado"));
+
+        // marca o dia atual
+        div.classList.add("selecionado");
+
+        // atualiza painel
+        const painel = document.getElementById("painel");
+        painel.innerHTML = `
+            <table border="1" style="width:100%; height:100%;">
+                <tr>
+                    <td style="text-align:center;">
+                        ${dia}/${mes + 1}/${ano}
+                    </td>
+                </tr>
+            </table>
+        `;
+    });
+
     calendario.appendChild(div);
 }
 
@@ -81,5 +103,17 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+const painel = document.getElementById("painel");
+
+function aoClicarNoDia(dia, mes, ano) {
+    painel.innerHTML = `
+        <h3>${dia}/${mes + 1}/${ano}</h3>
+        <table border="1" cellpadding="20">
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    `;
+}
 
 

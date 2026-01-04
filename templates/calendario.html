@@ -50,6 +50,10 @@ body {
     border: 1px solid #ccc;
     padding: 10px;
     text-align: left;
+    cursor: pointer;
+}
+.dia.selecionado {
+    outline: 2px solid #000;  /* 👈 AQUI */
 }
 .hoje{
     background: #62e9b7;
@@ -62,13 +66,31 @@ body {
     font-weight: 500;
 }
 
+#layout {
+    display: flex;
+    gap: 30px;
+}
+
+#calendario-container {
+    width: 800px;
+}
+
+#painel {
+    flex: 1;
+    border: 1px solid #ddd;
+    padding: 20px;
+    min-height: 400px;
+}
+
 
 
 </style>
 </head>
 
 <body>
-    
+
+<div id="layout">
+    <div id="calendario-container">
 
 <div id="topo">
     <button onclick="mesAnterior()">‹</button>
@@ -89,6 +111,14 @@ body {
 
 <div id="calendario"></div>
 
+</div>
+
+    <div id="painel">
+        <p>Selecione um dia</p>
+    </div>
+</div>
+
 <script src="/static/calendario.js"></script>
+
 </body>
 </html>
