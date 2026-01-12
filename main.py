@@ -1,6 +1,6 @@
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Request, Form, UploadFile, File
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from database import atualizar_celula
 from pydantic import BaseModel
@@ -9,6 +9,7 @@ from typing import List
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 import os
+from database_eventos import listar_eventos_por_data, inserir_evento
 
 
 app = FastAPI()
@@ -153,3 +154,20 @@ def logout(request: Request):
 def calendario():
     with open(os.path.join(BASE_DIR, "templates", "calendario.html"), encoding="utf-8") as f:
         return f.read()
+
+
+@app.get("/api/eventos")
+def get_eventos(data: str):
+    eventos = listar_eventos_por_data(data)
+    return eventos
+
+
+@app.post("/api/eventos")
+async def criar_evento(request: Request):
+    body = await request.json()
+    evento = inserir_evento(
+        body["titulo"],
+        body["descricao"],
+        body["data"]
+    )
+    return JSONResponse(evento)
