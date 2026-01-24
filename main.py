@@ -10,7 +10,12 @@ from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 import os
 from database_eventos import listar_eventos_por_data, inserir_evento
+from dotenv import load_dotenv
 
+load_dotenv()
+
+chave = os.getenv("CHAVE", "chave-padrão-insegura")
+usuario_valido = os.getenv("USUARIO_VALIDO", "usuario-invalido")
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -18,7 +23,7 @@ templates = Jinja2Templates(directory="templates")
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key="uma-chave-bem-secreta-aqui",
+    secret_key=chave,
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -69,11 +74,11 @@ def salvar_tarefa(
         "PDF": PDF
     }
 
-    # ✏️ Atualizar
+    #  Atualizar
     if id:
         database.atualizar_tarefa(int(id), dados)
 
-    # ➕ Criar nova tarefa
+    # Criar nova tarefa
     elif any(dados.values()):
         database.inserir_tarefa(dados)
 
@@ -133,9 +138,7 @@ def login_page(request: Request):
 @app.post("/login")
 def login(request: Request, usuario: str = Form(...)):
 
-    USUARIO_VALIDO = "2026"  # <-- troque pelo nome que você quiser
-
-    if usuario != USUARIO_VALIDO:
+    if usuario != usuario_valido:
         return RedirectResponse("/login", status_code=303)
 
     request.session["usuario"] = usuario
