@@ -1,6 +1,6 @@
 #Gerenciador de Tarefas 
 
-![Status do Projeto](https://img.shields.io/badge/status-concluido-green)
+![Status do Projeto](https://img.shields.io/badge/status-Em_andamento-yellow)
 
 Sistema web desenvolvido com **FastAPI** para gestão de tarefas, controle de eventos em calendário e anexos em PDF.
 
